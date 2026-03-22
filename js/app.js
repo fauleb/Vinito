@@ -46,7 +46,7 @@ async function loadWines() {
   }
 }
 
-// ---- Filtros por categoría ----
+// ---- Filtros por categoria ----
 function buildFilters() {
   const categories = ['Todos', ...new Set(allWines.map(w => w.categoria))];
   filtersContainer.innerHTML = '';
@@ -114,12 +114,12 @@ function addToCart(wineId) {
   updateCartBadge();
   showToast(`${wine.nombre} agregado al carrito`);
 
-  // Feedback visual en el botón
+  // Feedback visual en el boton
   const btns = document.querySelectorAll('.add-btn');
   btns.forEach(btn => {
     if (btn.getAttribute('onclick') === `addToCart(${wineId})`) {
       btn.classList.add('added');
-      btn.textContent = '✓ Agregado';
+      btn.textContent = 'Agregado';
       setTimeout(() => {
         btn.classList.remove('added');
         btn.textContent = 'Agregar';
@@ -151,7 +151,7 @@ function closeCart() {
 
 function renderCart() {
   if (cart.items.length === 0) {
-    cartItems.innerHTML = '<p class="cart-empty">Tu carrito está vacío</p>';
+    cartItems.innerHTML = '<p class="cart-empty">Tu carrito est\\u00e1 vac\\u00edo</p>';
     cartFooter.style.display = 'none';
     return;
   }
@@ -170,7 +170,7 @@ function renderCart() {
         <div class="cart-item-price">${CONFIG.CURRENCY}${(item.precio * item.qty).toLocaleString('es-AR')}</div>
       </div>
       <div class="cart-item-qty">
-        <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
+        <button class="qty-btn" onclick="changeQty(${item.id}, -1)">-</button>
         <span>${item.qty}</span>
         <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
       </div>
@@ -196,12 +196,13 @@ function checkout() {
   const address = document.getElementById('clientAddress').value.trim();
 
   if (!name) {
-    showToast('Ingresá tu nombre');
+    showToast('Ingres\\u00e1 tu nombre');
     document.getElementById('clientName').focus();
     return;
   }
+
   if (!address) {
-    showToast('Ingresá la dirección de entrega');
+    showToast('Ingres\\u00e1 la direcci\\u00f3n de entrega');
     document.getElementById('clientAddress').focus();
     return;
   }
@@ -212,7 +213,7 @@ function checkout() {
 
   window.open(url, '_blank');
 
-  // Limpiar carrito después de enviar
+  // Limpiar carrito despues de enviar
   cart.clear();
   updateCartBadge();
   closeCart();
@@ -221,7 +222,6 @@ function checkout() {
 
 // ---- Toast ----
 function showToast(message) {
-  // Remover toast anterior si existe
   const existing = document.querySelector('.toast');
   if (existing) existing.remove();
 
@@ -248,5 +248,10 @@ function escapeHTML(str) {
 }
 
 function escapeAttr(str) {
-  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
