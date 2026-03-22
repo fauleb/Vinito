@@ -7,7 +7,7 @@ const CONFIG = {
   //    (es la parte larga de la URL entre /d/ y /edit)
   //    Ejemplo: si la URL es https://docs.google.com/spreadsheets/d/1aBcDeFgHiJkLmNoPqRsTuVwXyZ/edit
   //    entonces el ID es: 1aBcDeFgHiJkLmNoPqRsTuVwXyZ
-  SHEET_ID: '1anKA2wvaoatu9Yp-UaoQpxAFa14GzvjYQPF6ISXJHAc',
+  SHEET_ID: '1PcddkANe9wLcvaGgPXLefL2A4A90FxIvGbDRLHX70oc',
 
   // 2. Nombre de la hoja (pestaña). Por defecto "Hoja 1" o "Sheet1"
   SHEET_NAME: 'catalogo_vinos',

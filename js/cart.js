@@ -52,17 +52,19 @@ class Cart {
   }
 
   buildWhatsAppMessage(name, address) {
-    let msg = `🍷 *Nuevo pedido V1NITO*\n\n`;
-    msg += `👤 *Nombre:* ${name}\n`;
-    msg += `📍 *Dirección:* ${address}\n\n`;
-    msg += `📋 *Detalle del pedido:*\n`;
+    let msg = ` 🍷*Detalles del pedido*🍷 \n\n`;
+    msg += `Nombre: ${name}\n`;
+    msg += `Direccion: ${address}\n\n`;
+    msg += `Detalle del pedido:\n`;
 
     this.items.forEach(item => {
-      msg += `• ${item.nombre} x${item.qty} — ${CONFIG.CURRENCY}${(item.precio * item.qty).toLocaleString('es-AR')}\n`;
+      const totalItem = (item.precio * item.qty).toLocaleString('es-AR');
+      msg += `- ${item.nombre} x${item.qty} - ${CONFIG.CURRENCY}${totalItem}\n`;
     });
 
-    msg += `\n💰 *Total: ${CONFIG.CURRENCY}${this.getTotal().toLocaleString('es-AR')}*`;
+    msg += `\nTotal: ${CONFIG.CURRENCY}${this.getTotal().toLocaleString('es-AR')}`;
 
     return msg;
+  
   }
 }
