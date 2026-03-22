@@ -36,6 +36,8 @@ function fetchWinesFromSheet() {
     window[callbackName] = function (response) {
       cleanup();
 
+      console.log('Google Sheets response:', JSON.stringify(response, null, 2));
+
       if (!response || !response.table) {
         reject(new Error('Respuesta invalida de Google Sheets'));
         return;
