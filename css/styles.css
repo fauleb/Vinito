@@ -559,6 +559,24 @@ a {
 }
 
 .filters {
+  display: grid;
+  gap: 14px;
+}
+
+.filters-group {
+  display: grid;
+  gap: 8px;
+}
+
+.filters-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.filters-row {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -620,6 +638,16 @@ a {
   color: var(--white);
   cursor: pointer;
   font-family: 'Manjari', sans-serif;
+}
+
+.empty-results {
+  grid-column: 1 / -1;
+  padding: 28px 12px;
+  text-align: center;
+  color: var(--ink-soft);
+  border: 1px dashed rgba(38, 57, 47, 0.16);
+  border-radius: 20px;
+  background: rgba(255, 253, 249, 0.7);
 }
 
 .wines-grid {

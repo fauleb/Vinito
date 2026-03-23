@@ -2,9 +2,32 @@
 // App principal V1NITO
 // =============================================
 
+const FILTER_TREE = {
+  Tintos: [
+    'Malbec',
+    'Cabernet Franc',
+    'Pinot Noir',
+    'Cabernet Sauvignon',
+    'Bonarda',
+    'Syrah',
+  ],
+  Blancos: [
+    'Chardonnay',
+    'Sauvignon Blanc',
+  ],
+};
+
+const VARIETAL_TO_TYPE = Object.entries(FILTER_TREE).reduce((acc, [type, varietals]) => {
+  varietals.forEach(varietal => {
+    acc[normalizeText(varietal)] = type;
+  });
+  return acc;
+}, {});
+
 const cart = new Cart();
 let allWines = [];
-let activeFilter = 'Todos';
+let activeTypeFilter = 'Todos';
+let activeVarietalFilter = 'Todos';
 
 // ---- DOM refs ----
 const winesGrid = document.getElementById('winesGrid');
@@ -46,30 +69,90 @@ async function loadWines() {
   }
 }
 
-// ---- Filtros por categoria ----
+// ---- Filtros por tipo y varietal ----
 function buildFilters() {
-  const categories = ['Todos', ...new Set(allWines.map(w => w.categoria))];
   filtersContainer.innerHTML = '';
 
-  categories.forEach(cat => {
-    const btn = document.createElement('button');
-    btn.className = `filter-btn${cat === activeFilter ? ' active' : ''}`;
-    btn.textContent = cat;
-    btn.addEventListener('click', () => {
-      activeFilter = cat;
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderWines();
-    });
-    filtersContainer.appendChild(btn);
+  const typeGroup = document.createElement('div');
+  typeGroup.className = 'filters-group';
+
+  const typeLabel = document.createElement('span');
+  typeLabel.className = 'filters-label';
+  typeLabel.textContent = 'Tipo';
+  typeGroup.appendChild(typeLabel);
+
+  const typeButtons = document.createElement('div');
+  typeButtons.className = 'filters-row';
+
+  ['Todos', ...Object.keys(FILTER_TREE)].forEach(type => {
+    typeButtons.appendChild(createFilterButton({
+      label: type,
+      isActive: type === activeTypeFilter,
+      onClick: () => {
+        activeTypeFilter = type;
+        activeVarietalFilter = 'Todos';
+        buildFilters();
+        renderWines();
+      },
+    }));
   });
+
+  typeGroup.appendChild(typeButtons);
+  filtersContainer.appendChild(typeGroup);
+
+  if (activeTypeFilter !== 'Todos') {
+    const varietalGroup = document.createElement('div');
+    varietalGroup.className = 'filters-group';
+
+    const varietalLabel = document.createElement('span');
+    varietalLabel.className = 'filters-label';
+    varietalLabel.textContent = 'Varietal';
+    varietalGroup.appendChild(varietalLabel);
+
+    const varietalButtons = document.createElement('div');
+    varietalButtons.className = 'filters-row';
+
+    ['Todos', ...FILTER_TREE[activeTypeFilter]].forEach(varietal => {
+      varietalButtons.appendChild(createFilterButton({
+        label: varietal,
+        isActive: varietal === activeVarietalFilter,
+        onClick: () => {
+          activeVarietalFilter = varietal;
+          buildFilters();
+          renderWines();
+        },
+      }));
+    });
+
+    varietalGroup.appendChild(varietalButtons);
+    filtersContainer.appendChild(varietalGroup);
+  }
+}
+
+function createFilterButton({ label, isActive, onClick }) {
+  const btn = document.createElement('button');
+  btn.className = `filter-btn${isActive ? ' active' : ''}`;
+  btn.textContent = label;
+  btn.addEventListener('click', onClick);
+  return btn;
 }
 
 // ---- Renderizar vinos ----
 function renderWines() {
-  const filtered = activeFilter === 'Todos'
-    ? allWines
-    : allWines.filter(w => w.categoria === activeFilter);
+  const filtered = allWines.filter(wine => {
+    const type = getWineType(wine);
+    const varietal = getWineVarietal(wine);
+
+    if (activeTypeFilter !== 'Todos' && type !== activeTypeFilter) {
+      return false;
+    }
+
+    if (activeVarietalFilter !== 'Todos' && varietal !== activeVarietalFilter) {
+      return false;
+    }
+
+    return true;
+  });
 
   winesGrid.innerHTML = filtered.map(wine => `
     <article class="wine-card${wine.tiene_stock ? '' : ' no-stock'}">
@@ -87,7 +170,7 @@ function renderWines() {
         </span>
       </div>
       <div class="wine-info">
-        <span class="wine-category">${escapeHTML(wine.categoria)}</span>
+        <span class="wine-category">${escapeHTML(getWineFilterLabel(wine))}</span>
         <h3 class="wine-name">${escapeHTML(wine.nombre)}</h3>
         <p class="wine-desc">${escapeHTML(wine.descripcion)}</p>
         <div class="wine-bottom">
@@ -103,6 +186,10 @@ function renderWines() {
       </div>
     </article>
   `).join('');
+
+  if (filtered.length === 0) {
+    winesGrid.innerHTML = '<p class="empty-results">No hay vinos para ese filtro todavia.</p>';
+  }
 }
 
 // ---- Agregar al carrito ----
@@ -114,7 +201,6 @@ function addToCart(wineId) {
   updateCartBadge();
   showToast(`${wine.nombre} agregado al carrito`);
 
-  // Feedback visual en el boton
   const btns = document.querySelectorAll('.add-btn');
   btns.forEach(btn => {
     if (btn.getAttribute('onclick') === `addToCart(${wineId})`) {
@@ -213,11 +299,60 @@ function checkout() {
 
   window.open(url, '_blank');
 
-  // Limpiar carrito despues de enviar
   cart.clear();
   updateCartBadge();
   closeCart();
   showToast('Pedido enviado por WhatsApp');
+}
+
+// ---- Helpers de filtros ----
+function getWineType(wine) {
+  const category = normalizeText(wine.categoria);
+
+  if (category.includes('blanco')) return 'Blancos';
+  if (category.includes('tinto')) return 'Tintos';
+
+  const varietalMatch = findKnownVarietal(wine);
+  if (varietalMatch) {
+    return VARIETAL_TO_TYPE[normalizeText(varietalMatch)] || 'Otros';
+  }
+
+  return 'Otros';
+}
+
+function getWineVarietal(wine) {
+  const varietalMatch = findKnownVarietal(wine);
+  return varietalMatch || wine.categoria || 'Otros';
+}
+
+function getWineFilterLabel(wine) {
+  const type = getWineType(wine);
+  const varietal = getWineVarietal(wine);
+
+  if (type === 'Otros') return varietal;
+  return `${type} · ${varietal}`;
+}
+
+function findKnownVarietal(wine) {
+  const searchableText = normalizeText(`${wine.categoria} ${wine.nombre} ${wine.descripcion}`);
+
+  for (const varietals of Object.values(FILTER_TREE)) {
+    for (const varietal of varietals) {
+      if (searchableText.includes(normalizeText(varietal))) {
+        return varietal;
+      }
+    }
+  }
+
+  return '';
+}
+
+function normalizeText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
 }
 
 // ---- Toast ----
