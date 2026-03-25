@@ -6,6 +6,7 @@ const FILTER_TREE = {
   Tintos: [
     'Malbec',
     'Cabernet Franc',
+    'Merlot',
     'Pinot Noir',
     'Cabernet Sauvignon',
     'Bonarda',

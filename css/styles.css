@@ -754,6 +754,9 @@ a {
   position: relative;
   width: 100%;
   padding-top: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
   background:
     radial-gradient(circle at top, rgba(255, 255, 255, 0.55), transparent 30%),
@@ -771,16 +774,20 @@ a {
 
 .wine-img {
   position: absolute;
-  inset: 14px;
-  width: calc(100% - 28px);
-  height: calc(100% - 28px);
+  top: 50%;
+  left: 50%;
+  width: auto;
+  max-width: 58%;
+  height: 82%;
+  max-height: 82%;
   object-fit: contain;
-  object-position: center;
+  object-position: center bottom;
+  transform: translate(-50%, -50%);
   transition: transform 320ms ease;
 }
 
 .wine-card:hover .wine-img {
-  transform: scale(1.05);
+  transform: translate(-50%, -50%) scale(1.04);
 }
 
 .wine-img-placeholder {
