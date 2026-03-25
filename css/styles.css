@@ -781,7 +781,7 @@ a {
   height: 96%;
   max-height: 96%;
   object-fit: contain;
-  object-position: center bottom;
+  object-position: center;
   transform: translate(-50%, -50%);
   transition: transform 320ms ease;
 }
