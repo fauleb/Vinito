@@ -777,9 +777,9 @@ a {
   top: 50%;
   left: 50%;
   width: auto;
-  max-width: 68%;
-  height: 90%;
-  max-height: 90%;
+  max-width: 76%;
+  height: 96%;
+  max-height: 96%;
   object-fit: contain;
   object-position: center bottom;
   transform: translate(-50%, -50%);
