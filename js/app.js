@@ -28,6 +28,7 @@ const cart = new Cart();
 let allWines = [];
 let activeTypeFilter = 'Todos';
 let activeVarietalFilter = 'Todos';
+let activeSearchTerm = '';
 
 // ---- DOM refs ----
 const winesGrid = document.getElementById('winesGrid');
@@ -43,11 +44,19 @@ const cartItems = document.getElementById('cartItems');
 const cartFooter = document.getElementById('cartFooter');
 const cartTotal = document.getElementById('cartTotal');
 const checkoutBtn = document.getElementById('checkoutBtn');
+const menuBtn = document.getElementById('menuBtn');
+const menuClose = document.getElementById('menuClose');
+const menuOverlay = document.getElementById('menuOverlay');
+const menuSidebar = document.getElementById('menuSidebar');
+const menuSearch = document.getElementById('menuSearch');
+const menuSearchBtn = document.getElementById('menuSearchBtn');
+const menuFilterButtons = document.querySelectorAll('[data-type]');
 
 // ---- Init ----
 document.addEventListener('DOMContentLoaded', () => {
   loadWines();
   setupCartUI();
+  setupMenuUI();
   updateCartBadge();
 });
 
@@ -142,12 +151,17 @@ function renderWines() {
   const filtered = allWines.filter(wine => {
     const type = getWineType(wine);
     const varietal = getWineVarietal(wine);
+    const searchableText = normalizeText(`${wine.nombre} ${wine.categoria} ${wine.descripcion}`);
 
     if (activeTypeFilter !== 'Todos' && type !== activeTypeFilter) {
       return false;
     }
 
     if (activeVarietalFilter !== 'Todos' && varietal !== activeVarietalFilter) {
+      return false;
+    }
+
+    if (activeSearchTerm && !searchableText.includes(normalizeText(activeSearchTerm))) {
       return false;
     }
 
@@ -222,7 +236,33 @@ function setupCartUI() {
   checkoutBtn.addEventListener('click', checkout);
 }
 
+function setupMenuUI() {
+  menuBtn.addEventListener('click', openMenu);
+  menuClose.addEventListener('click', closeMenu);
+  menuOverlay.addEventListener('click', closeMenu);
+  menuSearchBtn.addEventListener('click', handleMenuSearch);
+  menuSearch.addEventListener('keydown', event => {
+    if (event.key === 'Enter') {
+      handleMenuSearch();
+    }
+  });
+
+  menuFilterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      activeTypeFilter = button.dataset.type || 'Todos';
+      activeVarietalFilter = button.dataset.varietal || 'Todos';
+      activeSearchTerm = '';
+      menuSearch.value = '';
+      buildFilters();
+      renderWines();
+      scrollToCatalog();
+      closeMenu();
+    });
+  });
+}
+
 function openCart() {
+  closeMenu();
   renderCart();
   cartSidebar.classList.add('open');
   cartOverlay.classList.add('open');
@@ -233,6 +273,42 @@ function closeCart() {
   cartSidebar.classList.remove('open');
   cartOverlay.classList.remove('open');
   document.body.style.overflow = '';
+}
+
+function openMenu() {
+  closeCart();
+  menuSidebar.classList.add('open');
+  menuOverlay.classList.add('open');
+  menuSidebar.setAttribute('aria-hidden', 'false');
+  menuBtn.setAttribute('aria-expanded', 'true');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMenu() {
+  menuSidebar.classList.remove('open');
+  menuOverlay.classList.remove('open');
+  menuSidebar.setAttribute('aria-hidden', 'true');
+  menuBtn.setAttribute('aria-expanded', 'false');
+  if (!cartSidebar.classList.contains('open')) {
+    document.body.style.overflow = '';
+  }
+}
+
+function handleMenuSearch() {
+  activeTypeFilter = 'Todos';
+  activeVarietalFilter = 'Todos';
+  activeSearchTerm = menuSearch.value.trim();
+  buildFilters();
+  renderWines();
+  scrollToCatalog();
+  closeMenu();
+}
+
+function scrollToCatalog() {
+  const catalogSection = document.getElementById('catalogo');
+  if (catalogSection) {
+    catalogSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 function renderCart() {
