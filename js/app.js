@@ -32,11 +32,13 @@ const VARIETAL_TO_TYPE = Object.entries(FILTER_TREE).reduce((acc, [type, varieta
 
 const hasCart = typeof Cart === 'function';
 const cart = hasCart ? new Cart() : null;
+
 let allWines = [];
 let activeTypeFilter = 'Todos';
 let activeVarietalFilter = 'Todos';
 let activeSearchTerm = '';
 let activeSort = 'alpha-asc';
+let activeWineId = null;
 
 // ---- DOM refs ----
 const winesGrid = document.getElementById('winesGrid');
@@ -59,15 +61,19 @@ const menuSidebar = document.getElementById('menuSidebar');
 const menuSearch = document.getElementById('menuSearch');
 const menuSearchBtn = document.getElementById('menuSearchBtn');
 const menuFilterButtons = document.querySelectorAll('[data-type]');
+const wineDetailLoading = document.getElementById('wineDetailLoading');
+const wineDetailError = document.getElementById('wineDetailError');
+const wineDetailContent = document.getElementById('wineDetailContent');
 
 const hasCatalog = Boolean(winesGrid && loading && filtersContainer);
-const shouldOpenCatalogInNewTab = !hasCatalog;
+const hasWineDetail = Boolean(wineDetailLoading && wineDetailError && wineDetailContent);
+const shouldOpenCatalogInNewTab = !hasCatalog && !hasWineDetail;
 
 document.addEventListener('DOMContentLoaded', () => {
   applyQueryParams();
   setupMenuUI();
 
-  if (hasCatalog) {
+  if (hasCatalog || hasWineDetail) {
     loadWines();
   }
 
@@ -78,21 +84,45 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadWines() {
-  if (!hasCatalog) return;
+  if (!hasCatalog && !hasWineDetail) return;
 
-  loading.style.display = 'block';
-  errorMsg.style.display = 'none';
-  winesGrid.innerHTML = '';
+  if (hasCatalog) {
+    loading.style.display = 'block';
+    errorMsg.style.display = 'none';
+    winesGrid.innerHTML = '';
+  }
+
+  if (hasWineDetail) {
+    wineDetailLoading.style.display = 'block';
+    wineDetailError.style.display = 'none';
+    wineDetailContent.innerHTML = '';
+  }
 
   try {
     allWines = await fetchWinesFromSheet();
-    loading.style.display = 'none';
-    buildFilters();
-    renderWines();
+
+    if (hasCatalog) {
+      loading.style.display = 'none';
+      buildFilters();
+      renderWines();
+    }
+
+    if (hasWineDetail) {
+      wineDetailLoading.style.display = 'none';
+      renderWineDetail();
+    }
   } catch (err) {
     console.error('Error cargando vinos:', err);
-    loading.style.display = 'none';
-    errorMsg.style.display = 'block';
+
+    if (hasCatalog) {
+      loading.style.display = 'none';
+      errorMsg.style.display = 'block';
+    }
+
+    if (hasWineDetail) {
+      wineDetailLoading.style.display = 'none';
+      wineDetailError.style.display = 'block';
+    }
   }
 }
 
@@ -218,7 +248,13 @@ function renderWines() {
   const sorted = [...filtered].sort((a, b) => compareWines(a, b));
 
   winesGrid.innerHTML = sorted.map(wine => `
-    <article class="wine-card${wine.tiene_stock ? '' : ' no-stock'}">
+    <article
+      class="wine-card wine-card-link${wine.tiene_stock ? '' : ' no-stock'}"
+      role="link"
+      tabindex="0"
+      onclick="openWineDetail(${wine.id})"
+      onkeydown="handleWineCardKeydown(event, ${wine.id})"
+    >
       <div class="wine-img-wrap">
         ${wine.photo_url
           ? `<img class="wine-img" src="${escapeAttr(wine.photo_url)}" alt="${escapeAttr(wine.nombre)}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">`
@@ -235,13 +271,13 @@ function renderWines() {
       <div class="wine-info">
         <span class="wine-category">${escapeHTML(getWineFilterLabel(wine))}</span>
         <h3 class="wine-name">${escapeHTML(wine.nombre)}</h3>
-        <p class="wine-desc">${escapeHTML(wine.descripcion)}</p>
+        <p class="wine-detail-link">Ver ficha completa</p>
         <div class="wine-bottom">
           <span class="wine-price">${CONFIG.CURRENCY}${wine.precio.toLocaleString('es-AR')}</span>
           <button
             class="add-btn"
             ${wine.tiene_stock ? '' : 'disabled'}
-            onclick="addToCart(${wine.id})"
+            onclick="handleAddButtonClick(event, ${wine.id})"
           >
             ${wine.tiene_stock ? 'Agregar' : 'Agotado'}
           </button>
@@ -255,16 +291,77 @@ function renderWines() {
   }
 }
 
+function renderWineDetail() {
+  if (!hasWineDetail) return;
+
+  const wine = allWines.find(item => item.id === activeWineId);
+
+  if (!wine) {
+    wineDetailError.style.display = 'block';
+    return;
+  }
+
+  document.title = `V1NITO - ${wine.nombre}`;
+
+  wineDetailContent.innerHTML = `
+    <article class="wine-detail-card">
+      <div class="wine-detail-media">
+        ${wine.photo_url
+          ? `<img class="wine-detail-img" src="${escapeAttr(wine.photo_url)}" alt="${escapeAttr(wine.nombre)}" loading="lazy">`
+          : `<div class="wine-detail-placeholder">V1NITO</div>`
+        }
+      </div>
+      <div class="wine-detail-info">
+        <p class="wine-detail-category">${escapeHTML(getWineFilterLabel(wine))}</p>
+        <h1 class="wine-detail-title">${escapeHTML(wine.nombre)}</h1>
+        <p class="wine-detail-price">${CONFIG.CURRENCY}${wine.precio.toLocaleString('es-AR')}</p>
+        <p class="wine-detail-stock ${wine.tiene_stock ? 'is-stock' : 'no-stock'}">
+          ${wine.tiene_stock ? 'Disponible para pedir' : 'Sin stock por ahora'}
+        </p>
+        <div class="wine-detail-copy">
+          <h2>Descripci&oacute;n</h2>
+          <p>${escapeHTML(wine.descripcion || 'Sin descripci&oacute;n disponible por ahora.')}</p>
+        </div>
+        <div class="wine-detail-actions">
+          <button
+            class="add-btn wine-detail-add"
+            ${wine.tiene_stock ? '' : 'disabled'}
+            onclick="handleAddButtonClick(event, ${wine.id})"
+          >
+            ${wine.tiene_stock ? 'Agregar al carrito' : 'Agotado'}
+          </button>
+          <a class="wine-detail-back" href="catalogo.html" target="_blank" rel="noopener noreferrer">Volver al cat&aacute;logo</a>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
 function compareWines(a, b) {
-  if (activeSort === 'price-desc') {
-    return b.precio - a.precio;
-  }
-
-  if (activeSort === 'price-asc') {
-    return a.precio - b.precio;
-  }
-
+  if (activeSort === 'price-desc') return b.precio - a.precio;
+  if (activeSort === 'price-asc') return a.precio - b.precio;
   return a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' });
+}
+
+function openWineDetail(wineId) {
+  const url = `vino.html?id=${wineId}`;
+  window.open(url, '_blank', 'noopener');
+}
+
+function handleWineCardKeydown(event, wineId) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    openWineDetail(wineId);
+  }
+}
+
+function handleAddButtonClick(event, wineId) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  addToCart(wineId);
 }
 
 function addToCart(wineId) {
@@ -279,12 +376,13 @@ function addToCart(wineId) {
 
   const btns = document.querySelectorAll('.add-btn');
   btns.forEach(btn => {
-    if (btn.getAttribute('onclick') === `addToCart(${wineId})`) {
+    const action = btn.getAttribute('onclick') || '';
+    if (action.includes(`handleAddButtonClick(event, ${wineId})`)) {
       btn.classList.add('added');
       btn.textContent = 'Agregado';
       setTimeout(() => {
         btn.classList.remove('added');
-        btn.textContent = 'Agregar';
+        btn.textContent = btn.classList.contains('wine-detail-add') ? 'Agregar al carrito' : 'Agregar';
       }, 1200);
     }
   });
@@ -307,9 +405,7 @@ function setupMenuUI() {
   menuOverlay.addEventListener('click', closeMenu);
   menuSearchBtn.addEventListener('click', handleMenuSearch);
   menuSearch.addEventListener('keydown', event => {
-    if (event.key === 'Enter') {
-      handleMenuSearch();
-    }
+    if (event.key === 'Enter') handleMenuSearch();
   });
 
   menuFilterButtons.forEach(button => {
@@ -318,6 +414,12 @@ function setupMenuUI() {
       const varietal = button.dataset.varietal || 'Todos';
 
       if (shouldOpenCatalogInNewTab) {
+        openCatalogPage({ type, varietal });
+        closeMenu();
+        return;
+      }
+
+      if (hasWineDetail) {
         openCatalogPage({ type, varietal });
         closeMenu();
         return;
@@ -378,7 +480,7 @@ function closeMenu() {
 function handleMenuSearch() {
   const query = menuSearch.value.trim();
 
-  if (shouldOpenCatalogInNewTab) {
+  if (shouldOpenCatalogInNewTab || hasWineDetail) {
     openCatalogPage({ search: query });
     closeMenu();
     return;
@@ -415,20 +517,13 @@ function scrollToCatalog() {
 function applyQueryParams() {
   const params = new URLSearchParams(window.location.search);
 
-  if (params.has('type')) {
-    activeTypeFilter = params.get('type') || 'Todos';
-  }
-
-  if (params.has('varietal')) {
-    activeVarietalFilter = params.get('varietal') || 'Todos';
-  }
-
+  if (params.has('type')) activeTypeFilter = params.get('type') || 'Todos';
+  if (params.has('varietal')) activeVarietalFilter = params.get('varietal') || 'Todos';
   if (params.has('search')) {
     activeSearchTerm = params.get('search') || '';
-    if (menuSearch) {
-      menuSearch.value = activeSearchTerm;
-    }
+    if (menuSearch) menuSearch.value = activeSearchTerm;
   }
+  if (params.has('id')) activeWineId = parseInt(params.get('id'), 10) || null;
 }
 
 function renderCart() {
@@ -464,7 +559,6 @@ function renderCart() {
 
 function changeQty(wineId, delta) {
   if (!cart) return;
-
   cart.updateQty(wineId, delta);
   updateCartBadge();
   renderCart();
