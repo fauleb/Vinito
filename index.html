@@ -14,6 +14,11 @@
 
   <header class="header">
     <div class="header-inner">
+      <button class="menu-btn" id="menuBtn" aria-label="Abrir menu" aria-controls="menuSidebar" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
       <a href="#" class="logo">
         <span class="logo-v">V</span><span class="logo-1">1</span><span class="logo-nito">NITO</span>
       </a>
@@ -34,13 +39,11 @@
   <section class="hero">
     <div class="hero-grain"></div>
     <div class="hero-content">
-      <p class="hero-kicker">Selecci&oacute;n curada y entregas en C&oacute;rdoba</p>
       <h1 class="hero-title">Siempre es hora de un vinito</h1>
-      <p class="hero-sub">Una selecci&oacute;n con onda para abrir algo rico, brindar y convertir cualquier noche en plan.</p>
       <div class="hero-actions">
         <a href="#catalogo" class="hero-cta">Ver cat&aacute;logo</a>
-        <p class="hero-note">Pedidos por DM o WhatsApp</p>
       </div>
+      <p class="hero-sub">Una selecci&oacute;n con onda para abrir algo rico, brindar y convertir cualquier noche en plan.</p>
     </div>
 
     <div class="hero-scene" aria-hidden="true">
@@ -61,8 +64,7 @@
         <span class="collage-piece sparkle sparkle-2"></span>
       </div>
     </div>
-
-    <p class="hero-footer">Env&iacute;os por C&oacute;rdoba &middot; pedidos por DM</p>
+    <p class="hero-footer">Botellas elegidas para compartir, regalar y descorchar sin esperar una ocasi&oacute;n especial.</p>
   </section>
 
   <section class="intro-strip">
@@ -91,6 +93,46 @@
   </section>
 
   <div class="cart-overlay" id="cartOverlay"></div>
+  <div class="menu-overlay" id="menuOverlay"></div>
+  <aside class="menu-sidebar" id="menuSidebar" aria-hidden="true">
+    <div class="menu-header">
+      <div>
+        <p class="menu-eyebrow">Explorar</p>
+        <h3>Men&uacute; V1NITO</h3>
+      </div>
+      <button class="menu-close" id="menuClose" aria-label="Cerrar menu">&times;</button>
+    </div>
+
+    <div class="menu-search">
+      <label class="menu-label" for="menuSearch">Buscar vino</label>
+      <div class="menu-search-row">
+        <input type="search" id="menuSearch" placeholder="Malbec, Chardonnay, Enemigo...">
+        <button type="button" id="menuSearchBtn">Buscar</button>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <p class="menu-label">Cat&aacute;logo</p>
+      <div class="menu-links">
+        <button type="button" class="menu-link" data-type="Todos" data-varietal="Todos">Ver todo</button>
+        <button type="button" class="menu-link" data-type="Tintos" data-varietal="Todos">Tintos</button>
+        <button type="button" class="menu-sublink" data-type="Tintos" data-varietal="Malbec">Malbec</button>
+        <button type="button" class="menu-sublink" data-type="Tintos" data-varietal="Cabernet Franc">Cabernet Franc</button>
+        <button type="button" class="menu-sublink" data-type="Tintos" data-varietal="Pinot Noir">Pinot Noir</button>
+        <button type="button" class="menu-sublink" data-type="Tintos" data-varietal="Cabernet Sauvignon">Cabernet Sauvignon</button>
+        <button type="button" class="menu-sublink" data-type="Tintos" data-varietal="Bonarda">Bonarda</button>
+        <button type="button" class="menu-sublink" data-type="Tintos" data-varietal="Syrah">Syrah</button>
+        <button type="button" class="menu-link" data-type="Blancos" data-varietal="Todos">Blancos</button>
+        <button type="button" class="menu-sublink" data-type="Blancos" data-varietal="Chardonnay">Chardonnay</button>
+        <button type="button" class="menu-sublink" data-type="Blancos" data-varietal="Sauvignon Blanc">Sauvignon Blanc</button>
+      </div>
+    </div>
+
+    <a class="menu-wa-link" href="https://wa.me/543512554057?text=Hola%20V1NITO%2C%20tengo%20una%20consulta%20sobre%20el%20catalogo" target="_blank" rel="noopener noreferrer">
+      Consultas por WhatsApp
+    </a>
+  </aside>
+
   <aside class="cart-sidebar" id="cartSidebar">
     <div class="cart-header">
       <h3>Tu pedido</h3>
