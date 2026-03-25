@@ -38,7 +38,6 @@ let activeTypeFilter = 'Todos';
 let activeVarietalFilter = 'Todos';
 let activeSearchTerm = '';
 let activeSort = 'alpha-asc';
-let activeWineId = null;
 
 // ---- DOM refs ----
 const winesGrid = document.getElementById('winesGrid');
@@ -61,19 +60,21 @@ const menuSidebar = document.getElementById('menuSidebar');
 const menuSearch = document.getElementById('menuSearch');
 const menuSearchBtn = document.getElementById('menuSearchBtn');
 const menuFilterButtons = document.querySelectorAll('[data-type]');
-const wineDetailLoading = document.getElementById('wineDetailLoading');
-const wineDetailError = document.getElementById('wineDetailError');
-const wineDetailContent = document.getElementById('wineDetailContent');
+const wineModal = document.getElementById('wineModal');
+const wineModalOverlay = document.getElementById('wineModalOverlay');
+const wineModalClose = document.getElementById('wineModalClose');
+const wineModalContent = document.getElementById('wineModalContent');
 
 const hasCatalog = Boolean(winesGrid && loading && filtersContainer);
-const hasWineDetail = Boolean(wineDetailLoading && wineDetailError && wineDetailContent);
-const shouldOpenCatalogInNewTab = !hasCatalog && !hasWineDetail;
+const hasWineModal = Boolean(wineModal && wineModalOverlay && wineModalClose && wineModalContent);
+const shouldOpenCatalogInNewTab = !hasCatalog;
 
 document.addEventListener('DOMContentLoaded', () => {
   applyQueryParams();
   setupMenuUI();
+  setupWineModalUI();
 
-  if (hasCatalog || hasWineDetail) {
+  if (hasCatalog) {
     loadWines();
   }
 
@@ -84,45 +85,21 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadWines() {
-  if (!hasCatalog && !hasWineDetail) return;
+  if (!hasCatalog) return;
 
-  if (hasCatalog) {
-    loading.style.display = 'block';
-    errorMsg.style.display = 'none';
-    winesGrid.innerHTML = '';
-  }
-
-  if (hasWineDetail) {
-    wineDetailLoading.style.display = 'block';
-    wineDetailError.style.display = 'none';
-    wineDetailContent.innerHTML = '';
-  }
+  loading.style.display = 'block';
+  errorMsg.style.display = 'none';
+  winesGrid.innerHTML = '';
 
   try {
     allWines = await fetchWinesFromSheet();
-
-    if (hasCatalog) {
-      loading.style.display = 'none';
-      buildFilters();
-      renderWines();
-    }
-
-    if (hasWineDetail) {
-      wineDetailLoading.style.display = 'none';
-      renderWineDetail();
-    }
+    loading.style.display = 'none';
+    buildFilters();
+    renderWines();
   } catch (err) {
     console.error('Error cargando vinos:', err);
-
-    if (hasCatalog) {
-      loading.style.display = 'none';
-      errorMsg.style.display = 'block';
-    }
-
-    if (hasWineDetail) {
-      wineDetailLoading.style.display = 'none';
-      wineDetailError.style.display = 'block';
-    }
+    loading.style.display = 'none';
+    errorMsg.style.display = 'block';
   }
 }
 
@@ -248,13 +225,7 @@ function renderWines() {
   const sorted = [...filtered].sort((a, b) => compareWines(a, b));
 
   winesGrid.innerHTML = sorted.map(wine => `
-    <article
-      class="wine-card wine-card-link${wine.tiene_stock ? '' : ' no-stock'}"
-      role="link"
-      tabindex="0"
-      onclick="openWineDetail(${wine.id})"
-      onkeydown="handleWineCardKeydown(event, ${wine.id})"
-    >
+    <article class="wine-card${wine.tiene_stock ? '' : ' no-stock'}">
       <div class="wine-img-wrap">
         ${wine.photo_url
           ? `<img class="wine-img" src="${escapeAttr(wine.photo_url)}" alt="${escapeAttr(wine.nombre)}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">`
@@ -271,7 +242,13 @@ function renderWines() {
       <div class="wine-info">
         <span class="wine-category">${escapeHTML(getWineFilterLabel(wine))}</span>
         <h3 class="wine-name">${escapeHTML(wine.nombre)}</h3>
-        <p class="wine-detail-link">Ver ficha completa</p>
+        <button
+          class="wine-detail-link"
+          type="button"
+          onclick="handleWineDetailClick(event, ${wine.id})"
+        >
+          Ver ficha completa
+        </button>
         <div class="wine-bottom">
           <span class="wine-price">${CONFIG.CURRENCY}${wine.precio.toLocaleString('es-AR')}</span>
           <button
@@ -291,19 +268,10 @@ function renderWines() {
   }
 }
 
-function renderWineDetail() {
-  if (!hasWineDetail) return;
+function renderWineModal(wine) {
+  if (!hasWineModal || !wine) return;
 
-  const wine = allWines.find(item => item.id === activeWineId);
-
-  if (!wine) {
-    wineDetailError.style.display = 'block';
-    return;
-  }
-
-  document.title = `V1NITO - ${wine.nombre}`;
-
-  wineDetailContent.innerHTML = `
+  wineModalContent.innerHTML = `
     <article class="wine-detail-card">
       <div class="wine-detail-media">
         ${wine.photo_url
@@ -330,7 +298,7 @@ function renderWineDetail() {
           >
             ${wine.tiene_stock ? 'Agregar al carrito' : 'Agotado'}
           </button>
-          <a class="wine-detail-back" href="catalogo.html" target="_blank" rel="noopener noreferrer">Volver al cat&aacute;logo</a>
+          <button class="wine-detail-back" type="button" onclick="closeWineModal()">Seguir viendo</button>
         </div>
       </div>
     </article>
@@ -343,18 +311,6 @@ function compareWines(a, b) {
   return a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' });
 }
 
-function openWineDetail(wineId) {
-  const url = `vino.html?id=${wineId}`;
-  window.open(url, '_blank', 'noopener');
-}
-
-function handleWineCardKeydown(event, wineId) {
-  if (event.key === 'Enter' || event.key === ' ') {
-    event.preventDefault();
-    openWineDetail(wineId);
-  }
-}
-
 function handleAddButtonClick(event, wineId) {
   if (event) {
     event.preventDefault();
@@ -362,6 +318,19 @@ function handleAddButtonClick(event, wineId) {
   }
 
   addToCart(wineId);
+}
+
+function handleWineDetailClick(event, wineId) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  const wine = allWines.find(item => item.id === wineId);
+  if (!wine) return;
+
+  renderWineModal(wine);
+  openWineModal();
 }
 
 function addToCart(wineId) {
@@ -419,12 +388,6 @@ function setupMenuUI() {
         return;
       }
 
-      if (hasWineDetail) {
-        openCatalogPage({ type, varietal });
-        closeMenu();
-        return;
-      }
-
       activeTypeFilter = type;
       activeVarietalFilter = varietal;
       activeSearchTerm = '';
@@ -437,14 +400,27 @@ function setupMenuUI() {
   });
 }
 
+function setupWineModalUI() {
+  if (!hasWineModal) return;
+
+  wineModalClose.addEventListener('click', closeWineModal);
+  wineModalOverlay.addEventListener('click', closeWineModal);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && wineModal.classList.contains('open')) {
+      closeWineModal();
+    }
+  });
+}
+
 function openCart() {
   if (!cartSidebar || !cartOverlay) return;
 
   closeMenu();
+  closeWineModal();
   renderCart();
   cartSidebar.classList.add('open');
   cartOverlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
+  syncBodyScroll();
 }
 
 function closeCart() {
@@ -452,16 +428,17 @@ function closeCart() {
 
   cartSidebar.classList.remove('open');
   cartOverlay.classList.remove('open');
-  document.body.style.overflow = '';
+  syncBodyScroll();
 }
 
 function openMenu() {
   closeCart();
+  closeWineModal();
   menuSidebar.classList.add('open');
   menuOverlay.classList.add('open');
   menuSidebar.setAttribute('aria-hidden', 'false');
   menuBtn.setAttribute('aria-expanded', 'true');
-  document.body.style.overflow = 'hidden';
+  syncBodyScroll();
 }
 
 function closeMenu() {
@@ -471,16 +448,13 @@ function closeMenu() {
   menuOverlay.classList.remove('open');
   menuSidebar.setAttribute('aria-hidden', 'true');
   menuBtn.setAttribute('aria-expanded', 'false');
-
-  if (!cartSidebar || !cartSidebar.classList.contains('open')) {
-    document.body.style.overflow = '';
-  }
+  syncBodyScroll();
 }
 
 function handleMenuSearch() {
   const query = menuSearch.value.trim();
 
-  if (shouldOpenCatalogInNewTab || hasWineDetail) {
+  if (shouldOpenCatalogInNewTab) {
     openCatalogPage({ search: query });
     closeMenu();
     return;
@@ -507,6 +481,31 @@ function openCatalogPage({ type = '', varietal = '', search = '' } = {}) {
   window.open(url, '_blank', 'noopener');
 }
 
+function openWineModal() {
+  if (!hasWineModal) return;
+
+  wineModal.classList.add('open');
+  wineModalOverlay.classList.add('open');
+  wineModal.setAttribute('aria-hidden', 'false');
+  syncBodyScroll();
+}
+
+function closeWineModal() {
+  if (!hasWineModal) return;
+
+  wineModal.classList.remove('open');
+  wineModalOverlay.classList.remove('open');
+  wineModal.setAttribute('aria-hidden', 'true');
+  syncBodyScroll();
+}
+
+function syncBodyScroll() {
+  const cartOpen = cartSidebar && cartSidebar.classList.contains('open');
+  const menuOpen = menuSidebar && menuSidebar.classList.contains('open');
+  const modalOpen = wineModal && wineModal.classList.contains('open');
+  document.body.style.overflow = cartOpen || menuOpen || modalOpen ? 'hidden' : '';
+}
+
 function scrollToCatalog() {
   const catalogSection = document.getElementById('catalogo');
   if (catalogSection) {
@@ -523,7 +522,6 @@ function applyQueryParams() {
     activeSearchTerm = params.get('search') || '';
     if (menuSearch) menuSearch.value = activeSearchTerm;
   }
-  if (params.has('id')) activeWineId = parseInt(params.get('id'), 10) || null;
 }
 
 function renderCart() {

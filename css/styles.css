@@ -853,6 +853,11 @@ a {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  border: none;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
 }
 
 .wine-bottom {
@@ -1125,6 +1130,65 @@ a {
   justify-content: center;
   background: #1ea955;
   color: var(--white);
+}
+
+.wine-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 240;
+  background: rgba(31, 21, 20, 0.48);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition), visibility var(--transition);
+}
+
+.wine-modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.wine-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 241;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--transition), visibility var(--transition);
+}
+
+.wine-modal.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.wine-modal-card {
+  position: relative;
+  width: min(1040px, 100%);
+  max-height: min(88vh, 920px);
+  overflow: auto;
+  border-radius: 32px;
+}
+
+.wine-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 253, 249, 0.94);
+  color: var(--ink-soft);
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(32, 34, 29, 0.14);
 }
 
 .detail-shell {
@@ -1520,6 +1584,15 @@ a {
 
   .menu-search-row {
     grid-template-columns: 1fr;
+  }
+
+  .wine-modal {
+    padding: 12px;
+  }
+
+  .wine-modal-card {
+    max-height: 92vh;
+    border-radius: 24px;
   }
 
   .menu-item:hover .menu-submenu {
