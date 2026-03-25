@@ -1012,12 +1012,35 @@ a {
   gap: 8px;
 }
 
+.menu-item {
+  border: 1px solid rgba(38, 57, 47, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 253, 249, 0.72);
+  overflow: hidden;
+  transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+}
+
+.menu-item:hover,
+.menu-item[open] {
+  border-color: rgba(111, 43, 52, 0.24);
+  background: var(--white);
+  box-shadow: 0 12px 24px rgba(32, 34, 29, 0.08);
+}
+
+.menu-item summary {
+  list-style: none;
+}
+
+.menu-item summary::-webkit-details-marker {
+  display: none;
+}
+
 .menu-link,
 .menu-sublink {
   width: 100%;
   display: block;
-  border: 1px solid rgba(38, 57, 47, 0.1);
-  background: rgba(255, 253, 249, 0.72);
+  border: none;
+  background: transparent;
   color: var(--ink);
   text-align: left;
   cursor: pointer;
@@ -1026,21 +1049,56 @@ a {
 
 .menu-link {
   padding: 12px 14px;
-  border-radius: 16px;
   font-weight: 700;
 }
 
+.menu-links > .menu-link {
+  border: 1px solid rgba(38, 57, 47, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 253, 249, 0.72);
+}
+
+.menu-parent {
+  position: relative;
+  padding-right: 42px;
+}
+
+.menu-parent::after {
+  content: '+';
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  font-size: 1.15rem;
+  color: var(--wine);
+}
+
+.menu-item[open] .menu-parent::after {
+  content: '-';
+}
+
+.menu-submenu {
+  display: none;
+  padding: 0 10px 10px;
+}
+
+.menu-item:hover .menu-submenu,
+.menu-item[open] .menu-submenu {
+  display: grid;
+  gap: 6px;
+}
+
 .menu-sublink {
-  padding: 11px 14px 11px 26px;
+  padding: 11px 14px 11px 18px;
   border-radius: 14px;
   color: var(--ink-soft);
+  background: rgba(241, 234, 223, 0.55);
 }
 
 .menu-link:hover,
 .menu-sublink:hover {
   transform: translateX(3px);
-  border-color: rgba(111, 43, 52, 0.24);
-  background: var(--white);
+  background: rgba(241, 234, 223, 0.85);
 }
 
 .menu-wa-link {
@@ -1319,6 +1377,14 @@ a {
 
   .menu-search-row {
     grid-template-columns: 1fr;
+  }
+
+  .menu-item:hover .menu-submenu {
+    display: none;
+  }
+
+  .menu-item[open] .menu-submenu {
+    display: grid;
   }
 
   .intro-strip,
