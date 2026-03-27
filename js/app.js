@@ -60,6 +60,7 @@ const menuOverlay = document.getElementById('menuOverlay');
 const menuSidebar = document.getElementById('menuSidebar');
 const menuSearch = document.getElementById('menuSearch');
 const menuSearchBtn = document.getElementById('menuSearchBtn');
+const catalogSearch = document.getElementById('catalogSearch');
 const menuFilterButtons = document.querySelectorAll('[data-type]');
 const wineModal = document.getElementById('wineModal');
 const wineModalOverlay = document.getElementById('wineModalOverlay');
@@ -74,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
   applyQueryParams();
   setupMenuUI();
   setupWineModalUI();
+  setupCatalogSearchUI();
 
   if (hasCatalog) {
     loadWines();
@@ -393,6 +395,7 @@ function setupMenuUI() {
       activeVarietalFilter = varietal;
       activeSearchTerm = '';
       menuSearch.value = '';
+      if (catalogSearch) catalogSearch.value = '';
       buildFilters();
       renderWines();
       scrollToCatalog();
@@ -410,6 +413,19 @@ function setupWineModalUI() {
     if (event.key === 'Escape' && wineModal.classList.contains('open')) {
       closeWineModal();
     }
+  });
+}
+
+function setupCatalogSearchUI() {
+  if (!catalogSearch) return;
+
+  catalogSearch.value = activeSearchTerm;
+  catalogSearch.addEventListener('input', event => {
+    activeSearchTerm = event.target.value.trim();
+    if (menuSearch) {
+      menuSearch.value = activeSearchTerm;
+    }
+    renderWines();
   });
 }
 
@@ -464,6 +480,9 @@ function handleMenuSearch() {
   activeTypeFilter = 'Todos';
   activeVarietalFilter = 'Todos';
   activeSearchTerm = query;
+  if (catalogSearch) {
+    catalogSearch.value = activeSearchTerm;
+  }
   buildFilters();
   renderWines();
   scrollToCatalog();
@@ -522,6 +541,7 @@ function applyQueryParams() {
   if (params.has('search')) {
     activeSearchTerm = params.get('search') || '';
     if (menuSearch) menuSearch.value = activeSearchTerm;
+    if (catalogSearch) catalogSearch.value = activeSearchTerm;
   }
 }
 

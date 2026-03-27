@@ -595,6 +595,51 @@ a {
   box-shadow: var(--shadow);
 }
 
+.catalog-search {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.catalog-search input {
+  width: 100%;
+  border: 1px solid rgba(38, 57, 47, 0.14);
+  border-radius: 18px;
+  padding: 14px 18px 14px 50px;
+  background: rgba(255, 253, 249, 0.95);
+  color: var(--ink);
+  font-family: 'Manjari', sans-serif;
+  font-size: 0.98rem;
+}
+
+.catalog-search input:focus {
+  outline: none;
+  border-color: rgba(111, 43, 52, 0.36);
+}
+
+.catalog-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 18px;
+  transform: translateY(-50%);
+  color: var(--ink-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .section-header {
   display: flex;
   align-items: end;
