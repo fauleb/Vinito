@@ -60,6 +60,8 @@ const menuOverlay = document.getElementById('menuOverlay');
 const menuSidebar = document.getElementById('menuSidebar');
 const menuSearch = document.getElementById('menuSearch');
 const menuSearchBtn = document.getElementById('menuSearchBtn');
+const catalogSearchForm = document.getElementById('catalogSearchForm');
+const catalogSearchToggle = document.getElementById('catalogSearchToggle');
 const catalogSearch = document.getElementById('catalogSearch');
 const menuFilterButtons = document.querySelectorAll('[data-type]');
 const wineModal = document.getElementById('wineModal');
@@ -396,6 +398,7 @@ function setupMenuUI() {
       activeSearchTerm = '';
       menuSearch.value = '';
       if (catalogSearch) catalogSearch.value = '';
+      if (catalogSearchForm) catalogSearchForm.classList.remove('open');
       buildFilters();
       renderWines();
       scrollToCatalog();
@@ -417,16 +420,47 @@ function setupWineModalUI() {
 }
 
 function setupCatalogSearchUI() {
-  if (!catalogSearch) return;
+  if (!catalogSearch || !catalogSearchForm || !catalogSearchToggle) return;
 
   catalogSearch.value = activeSearchTerm;
-  catalogSearch.addEventListener('input', event => {
-    activeSearchTerm = event.target.value.trim();
-    if (menuSearch) {
-      menuSearch.value = activeSearchTerm;
+  catalogSearchForm.classList.toggle('open', Boolean(activeSearchTerm));
+
+  catalogSearchToggle.addEventListener('click', () => {
+    const isOpen = catalogSearchForm.classList.toggle('open');
+    if (isOpen) {
+      catalogSearch.focus();
+      return;
     }
-    renderWines();
+
+    if (activeSearchTerm) {
+      activeSearchTerm = '';
+      catalogSearch.value = '';
+      if (menuSearch) menuSearch.value = '';
+      renderWines();
+    }
   });
+
+  catalogSearchForm.addEventListener('submit', event => {
+    event.preventDefault();
+    applyCatalogSearch();
+  });
+
+  catalogSearch.addEventListener('keydown', event => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      applyCatalogSearch();
+    }
+  });
+}
+
+function applyCatalogSearch() {
+  if (!catalogSearch) return;
+
+  activeSearchTerm = catalogSearch.value.trim();
+  if (menuSearch) {
+    menuSearch.value = activeSearchTerm;
+  }
+  renderWines();
 }
 
 function openCart() {
@@ -482,6 +516,9 @@ function handleMenuSearch() {
   activeSearchTerm = query;
   if (catalogSearch) {
     catalogSearch.value = activeSearchTerm;
+  }
+  if (catalogSearchForm) {
+    catalogSearchForm.classList.toggle('open', Boolean(activeSearchTerm));
   }
   buildFilters();
   renderWines();
@@ -542,6 +579,9 @@ function applyQueryParams() {
     activeSearchTerm = params.get('search') || '';
     if (menuSearch) menuSearch.value = activeSearchTerm;
     if (catalogSearch) catalogSearch.value = activeSearchTerm;
+    if (catalogSearchForm) {
+      catalogSearchForm.classList.toggle('open', Boolean(activeSearchTerm));
+    }
   }
 }
 

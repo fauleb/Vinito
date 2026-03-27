@@ -43,20 +43,21 @@
     </section>
 
     <section id="catalogo" class="catalogo">
-      <div class="catalog-search" role="search">
-        <label class="sr-only" for="catalogSearch">Buscar vino por nombre</label>
-        <span class="catalog-search-icon" aria-hidden="true">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="7"></circle>
-            <path d="M20 20l-3.5-3.5"></path>
-          </svg>
-        </span>
-        <input type="search" id="catalogSearch" placeholder="Buscar por nombre">
-      </div>
-
       <div class="section-header">
         <h2 class="section-title">Nuestros vinos</h2>
-        <div class="filters" id="filters"></div>
+        <div class="section-tools">
+          <form class="catalog-search compact" id="catalogSearchForm" role="search">
+            <label class="sr-only" for="catalogSearch">Buscar vino por nombre</label>
+            <button type="button" class="catalog-search-toggle" id="catalogSearchToggle" aria-label="Buscar vino">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="7"></circle>
+                <path d="M20 20l-3.5-3.5"></path>
+              </svg>
+            </button>
+            <input type="search" id="catalogSearch" placeholder="Buscar por nombre">
+          </form>
+          <div class="filters" id="filters"></div>
+        </div>
       </div>
 
       <div class="loading" id="loading">
