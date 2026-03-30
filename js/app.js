@@ -19,7 +19,6 @@ const FILTER_TREE = {
 };
 
 const SORT_OPTIONS = [
-  { value: 'alpha-asc', label: 'A-Z' },
   { value: 'price-desc', label: 'Precio mayor a menor' },
   { value: 'price-asc', label: 'Precio menor a mayor' },
 ];
@@ -38,7 +37,7 @@ let allWines = [];
 let activeTypeFilter = 'Todos';
 let activeVarietalFilter = 'Todos';
 let activeSearchTerm = '';
-let activeSort = 'alpha-asc';
+let activeSort = 'price-desc';
 
 // ---- DOM refs ----
 const winesGrid = document.getElementById('winesGrid');
