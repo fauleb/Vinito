@@ -16,6 +16,9 @@ const FILTER_TREE = {
     'Chardonnay',
     'Sauvignon Blanc',
   ],
+  Espumantes: [
+    'Espumante',
+  ],
 };
 
 const SORT_OPTIONS = [
@@ -154,6 +157,16 @@ const LOCAL_IMAGE_CANDIDATES = LOCAL_IMAGE_PATHS.map(path => ({
   path,
   key: normalizeImageKey(path),
 }));
+
+const MANUAL_IMAGE_MAP = {
+  [normalizeText('A La Par Extra Brut')]: 'img/AlaParE.B.png',
+  [normalizeText('A La Par Edición Especial Brut Nature')]: 'img/AlaParE.E.png',
+  [normalizeText('Gustavo Agostini Brut Nature')]: 'img/AlaparGustavo.png',
+  [normalizeText('Salentein brut rose')]: 'img/salentein brut rose.png',
+  [normalizeText('Salentein brut nature')]: 'img/salentein brut nature.png',
+  [normalizeText('Salentein Blanc de Blanc')]: 'img/salentein blanc de blancs.png',
+  [normalizeText('Salentein extra brut')]: 'img/Salentein Extra Brut.png',
+};
 
 const VARIETAL_TO_TYPE = Object.entries(FILTER_TREE).reduce((acc, [type, varietals]) => {
   varietals.forEach(varietal => {
@@ -488,6 +501,9 @@ function syncCartItemImages() {
 }
 
 function resolveWineImage(wine) {
+  const manualImage = MANUAL_IMAGE_MAP[normalizeText(wine.nombre)];
+  if (manualImage) return manualImage;
+
   const sourceKeys = [
     normalizeImageKey(wine.photo_url),
     normalizeImageKey(wine.nombre),
@@ -907,7 +923,9 @@ function checkout() {
 
 function getWineType(wine) {
   const category = normalizeText(wine.categoria);
+  const sparklingStyle = getSparklingStyle(wine);
 
+  if (sparklingStyle) return 'Espumantes';
   if (category.includes('blanco')) return 'Blancos';
   if (category.includes('tinto')) return 'Tintos';
 
@@ -920,6 +938,9 @@ function getWineType(wine) {
 }
 
 function getWineVarietal(wine) {
+  const sparklingStyle = getSparklingStyle(wine);
+  if (sparklingStyle) return sparklingStyle;
+
   const varietalMatch = findKnownVarietal(wine);
   return varietalMatch || wine.categoria || 'Otros';
 }
@@ -935,12 +956,42 @@ function getWineFilterLabel(wine) {
 function findKnownVarietal(wine) {
   const searchableText = normalizeText(`${wine.categoria} ${wine.nombre} ${wine.descripcion}`);
 
-  for (const varietals of Object.values(FILTER_TREE)) {
+  for (const [type, varietals] of Object.entries(FILTER_TREE)) {
+    if (type === 'Espumantes') continue;
+
     for (const varietal of varietals) {
       if (searchableText.includes(normalizeText(varietal))) {
         return varietal;
       }
     }
+  }
+
+  return '';
+}
+
+function getSparklingStyle(wine) {
+  const searchableText = normalizeText(`${wine.categoria} ${wine.nombre} ${wine.descripcion}`);
+
+  if (!searchableText) return '';
+  if (normalizeText(wine.nombre) === normalizeText('Nicasia Blanc de Blancs')) return '';
+
+  const champagneKeywords = ['champagne', 'champan', 'champan bressia'];
+  if (champagneKeywords.some(keyword => searchableText.includes(keyword))) {
+    return 'Espumante';
+  }
+
+  const sparklingKeywords = [
+    'espumante',
+    'brut',
+    'extra brut',
+    'brut nature',
+    'blanc de blanc',
+    'blanc de blancs',
+    'metodo tradicional',
+  ];
+
+  if (sparklingKeywords.some(keyword => searchableText.includes(keyword))) {
+    return 'Espumante';
   }
 
   return '';
