@@ -85,7 +85,7 @@ function parseGvizTable(table) {
     });
 
     // Saltear filas vacias
-    if (!row['nombre'] || !row['nombre'].trim()) return;
+    if (!row['nombre'] || !row['nombre'].trim()) continue;
 
     wines.push({
       id: i + 1,

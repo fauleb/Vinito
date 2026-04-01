@@ -23,6 +23,116 @@ const SORT_OPTIONS = [
   { value: 'price-asc', label: 'Precio menor a mayor' },
 ];
 
+const LOCAL_IMAGE_PATHS = [
+  'img/DVCatenaMalbecVineyardDesignatedAdrianna.png',
+  'img/DVCatena Garnacha Apelaciones Lunlunta.png',
+  'img/DVCATEANA_MB-MB.png',
+  'img/D.V. Catena Tinto Historico Apelaciones Paraje Altamira.png',
+  'img/D.V. Catena Malbec Vineyard Designated Nicasia Altamira.png',
+  'img/D.V. Catena L ’Esploratore Malbec La Rioja.png',
+  'img/D.V. Catena L ’Esploratore Malbec Cafayate Salta.png',
+  'img/D.V. Catena Cabernet Sauvignon Vineyard Designated Piramide.png',
+  'img/D.V. Catena Cabernet Sauvignon Vineyard Designated Domingo.png',
+  'img/D.V. Catena Blanco Historico Apelaciones Agrelo.png',
+  'img/CorderoPielLobo.png',
+  'img/CHAMPAN BRESSIA.png',
+  'img/BRESSIA PROFUNDO.png',
+  'img/BRESSIA CONJURO.png',
+  'img/BIRTHOFCABERBET.png',
+  'img/ANGELICA_MERLOT.png',
+  'img/ANGELICA_MALBEC.png',
+  'img/ANGELICA_CHARDONNAY.png',
+  'img/ANGELICA_CBSAU.png',
+  'img/ANGELICA_CBF.png',
+  'img/Altupalka_MB-T.png',
+  'img/ALTUPALKA-MB EXTREMO.png',
+  'img/ALTUPALKA TORROTNES.png',
+  'img/ALTUPALKA SAUV.BLANC.png',
+  'img/ALTUPALKA MB MB.png',
+  'img/ALTUPALKA CABSAUV.png',
+  'img/AlaparGustavo.png',
+  'img/AlaParE.E.png',
+  'img/AlaParE.B.png',
+  'img/ALA COLORADA PETIT VERDOT.png',
+  'img/ALA COLORADA CBF.png',
+  'img/ALA COLORADA ANCELLOTA.png',
+  'img/LAS PERDICES RED BLEND.png',
+  'img/LAS PERDICES MALBEC.png',
+  'img/LAS PERDICES CHARDONNAY.png',
+  'img/lAGRIMA_CANELA.png',
+  'img/GRANENEMIGO_GUALTALLARAY.png',
+  'img/GRANENEMIGO_CORTE.png',
+  'img/GRANENEMIGO_CHACAYES.png',
+  'img/GRANENEMIGO_CEPILLO.png',
+  'img/GRANENEMIGO_AGRELO.png',
+  'img/FAMILIA GASCON MALBEC.png',
+  'img/ESCORIHUELA ROSAURA.png',
+  'img/ESCORIHUELA MALBEC.png',
+  'img/ESCORIHUELA MALBEC CAB.png',
+  'img/ESCORIHUELA GRAN RESERVA MALBEC.png',
+  'img/ESCORIHUELA GRAN RESERVA CHARDONNAY.png',
+  'img/ESCORIHUELA G.RESERVA CBS.png',
+  'img/ESCORIHUELA CHARDONNAY.png',
+  'img/ESCORIHUELA CBF.png',
+  'img/ENEMIGO_MALBEC.png',
+  'img/ENEMIGO_CHARDONNAY.jpg',
+  'img/ENEMIGO_CBF.png',
+  'img/ENEMIGO_BONARDA.png',
+  'img/DVCATENA_PINOT.png',
+  'img/DVCATENA_CHARDONNAY.png',
+  'img/DVCATENA_CB-MB.png',
+  'img/DVCATENA_CB-CB.png',
+  'img/NICASIA_BLANC DE BLANCS.png',
+  'img/MONTEAGRELO.png',
+  'img/MALBEC_ARGENTINO.png',
+  'img/LUIGI PINOT.png',
+  'img/LUIGI MALBEC.png',
+  'img/LUIGI DE SANGRE MALBEC DOC.png',
+  'img/LUIGI DE SANGRE CBF.png',
+  'img/LUIGI CHARDONNAY.png',
+  'img/LUIGI BOSCA DE SANGRE MALBEC VALLE DE UCO.png',
+  'img/LAS PERDICES RESERVA PINOT.png',
+  'img/LAS PERDICES RESERVA MALBEC.png',
+  'img/LAS PERDICES RESERVA CHARDONNAY.png',
+  'img/LAS PERDICES RESERVA BONARDA.png',
+  'img/NICASIA_RED BLEND MALBEC.png',
+  'img/NICASIA_RED BLEND CBF.png',
+  'img/NICASIA_GRANBLEND.png',
+  'img/PEQUEÑAS PROD PINOT.png',
+  'img/PEQUEÑAS PROD CBF.png',
+  'img/NICOLAS_CATENA.png',
+  'img/NICOLASCATENA_BONARDA.png',
+  'img/PIEL NEGRA PINOT.png',
+  'img/PEQUEÑAS PRODUCCIONES MALBEC.png',
+  'img/PULENTA CBF.png',
+  'img/ULTIMA_HOJA.png',
+  'img/TRUMPETER MALBEC.png',
+  'img/TRUMPETER CHARDONNAY.png',
+  'img/TRUMPETER CBS.png',
+  'img/TRUMPETER CBF.png',
+  'img/THE PRESIDENTS.png',
+  'img/Salentein Extra Brut.png',
+  'img/salentein brut rose.png',
+  'img/salentein brut nature.png',
+  'img/salentein blanc de blancs.png',
+  'img/SAINT_PINOT.png',
+  'img/SAINT_MALBEC.png',
+  'img/SAINT_CHARDONNAY.png',
+  'img/SAINT_CBS.png',
+  'img/SAINT_CBF.png',
+  'img/RUTINI SINGLE VINEYARD ALTAMIRA MALBEC.png',
+  'img/RUTINI MALBEC.png',
+  'img/RUTINI CHARDONNAY.png',
+  'img/RUTINI CB MB.png',
+  'img/PULENTA MALBEC.png',
+  'img/PULENTA CHARDONNAY.png',
+];
+
+const LOCAL_IMAGE_CANDIDATES = LOCAL_IMAGE_PATHS.map(path => ({
+  path,
+  key: normalizeImageKey(path),
+}));
+
 const VARIETAL_TO_TYPE = Object.entries(FILTER_TREE).reduce((acc, [type, varietals]) => {
   varietals.forEach(varietal => {
     acc[normalizeText(varietal)] = type;
@@ -96,7 +206,8 @@ async function loadWines() {
   winesGrid.innerHTML = '';
 
   try {
-    allWines = await fetchWinesFromSheet();
+    allWines = (await fetchWinesFromSheet()).map(prepareWineImage);
+    syncCartItemImages();
     loading.style.display = 'none';
     buildFilters();
     renderWines();
@@ -232,7 +343,7 @@ function renderWines() {
     <article class="wine-card${wine.tiene_stock ? '' : ' no-stock'}">
       <div class="wine-img-wrap">
         ${wine.photo_url
-          ? `<img class="wine-img" src="${escapeAttr(wine.photo_url)}" alt="${escapeAttr(wine.nombre)}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">`
+          ? `<img class="wine-img" src="${escapeAttr(wine.photo_url)}" alt="${escapeAttr(wine.nombre)}" loading="lazy" onerror="handleWineImageError(this, '${escapeAttr(wine.original_photo_url || '')}')">`
           : ''}
         <div class="wine-img-placeholder" ${wine.photo_url ? 'style="display:none"' : ''}>
           <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
@@ -279,7 +390,7 @@ function renderWineModal(wine) {
     <article class="wine-detail-card">
       <div class="wine-detail-media">
         ${wine.photo_url
-          ? `<img class="wine-detail-img" src="${escapeAttr(wine.photo_url)}" alt="${escapeAttr(wine.nombre)}" loading="lazy">`
+          ? `<img class="wine-detail-img" src="${escapeAttr(wine.photo_url)}" alt="${escapeAttr(wine.nombre)}" loading="lazy" onerror="handleWineImageError(this, '${escapeAttr(wine.original_photo_url || '')}')">`
           : `<div class="wine-detail-placeholder">V1NITO</div>`
         }
       </div>
@@ -313,6 +424,116 @@ function compareWines(a, b) {
   if (activeSort === 'price-desc') return b.precio - a.precio;
   if (activeSort === 'price-asc') return a.precio - b.precio;
   return a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' });
+}
+
+function prepareWineImage(wine) {
+  const resolvedPhoto = resolveWineImage(wine);
+
+  return {
+    ...wine,
+    original_photo_url: wine.photo_url,
+    photo_url: resolvedPhoto,
+  };
+}
+
+function syncCartItemImages() {
+  if (!cart || !Array.isArray(cart.items) || cart.items.length === 0) return;
+
+  const winesById = new Map(allWines.map(wine => [wine.id, wine]));
+  let updated = false;
+
+  cart.items = cart.items.map(item => {
+    const freshWine = winesById.get(item.id);
+    if (!freshWine) return item;
+
+    const nextPhoto = freshWine.photo_url || item.photo_url;
+    const nextOriginalPhoto = freshWine.original_photo_url || item.original_photo_url || '';
+
+    if (item.photo_url !== nextPhoto || item.original_photo_url !== nextOriginalPhoto) {
+      updated = true;
+    }
+
+    return {
+      ...item,
+      photo_url: nextPhoto,
+      original_photo_url: nextOriginalPhoto,
+    };
+  });
+
+  if (updated) {
+    cart.save();
+  }
+}
+
+function resolveWineImage(wine) {
+  const sourceKeys = [
+    normalizeImageKey(wine.photo_url),
+    normalizeImageKey(wine.nombre),
+  ].filter(Boolean);
+
+  for (const key of sourceKeys) {
+    const exactMatch = LOCAL_IMAGE_CANDIDATES.find(candidate => candidate.key === key);
+    if (exactMatch) return exactMatch.path;
+  }
+
+  const bestCandidate = findBestLocalImageMatch(wine);
+  return bestCandidate ? bestCandidate.path : (wine.photo_url || '');
+}
+
+function findBestLocalImageMatch(wine) {
+  const wineKey = normalizeImageKey(wine.nombre);
+  const wineTokens = getMeaningfulTokens(wineKey);
+  let bestCandidate = null;
+  let bestScore = 0;
+
+  LOCAL_IMAGE_CANDIDATES.forEach(candidate => {
+    const candidateTokens = getMeaningfulTokens(candidate.key);
+    const sharedTokens = wineTokens.filter(token => candidateTokens.includes(token));
+    let score = sharedTokens.length * 12;
+
+    if (candidate.key.includes(wineKey) || wineKey.includes(candidate.key)) {
+      score += 25;
+    }
+
+    if (wineTokens.length && wineTokens.every(token => candidateTokens.includes(token))) {
+      score += 30;
+    }
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestCandidate = candidate;
+    }
+  });
+
+  return bestScore >= 24 ? bestCandidate : null;
+}
+
+function handleWineImageError(img, fallbackSrc) {
+  if (!img) return;
+
+  const triedFallback = img.dataset.fallbackTried === 'true';
+
+  if (!triedFallback && fallbackSrc && img.currentSrc !== fallbackSrc) {
+    img.dataset.fallbackTried = 'true';
+    img.src = fallbackSrc;
+    return;
+  }
+
+  img.style.display = 'none';
+  const placeholder = img.nextElementSibling;
+  if (placeholder && placeholder.classList.contains('wine-img-placeholder')) {
+    placeholder.style.display = 'block';
+    return;
+  }
+
+  if (img.classList.contains('wine-detail-img')) {
+    img.insertAdjacentHTML('afterend', '<div class="wine-detail-placeholder">V1NITO</div>');
+    return;
+  }
+
+  if (img.classList.contains('cart-item-img')) {
+    img.insertAdjacentHTML('afterend', '<div class="cart-item-img cart-item-placeholder">V1NITO</div>');
+  }
 }
 
 function handleAddButtonClick(event, wineId) {
@@ -599,7 +820,7 @@ function renderCart() {
   cartItems.innerHTML = cart.items.map(item => `
     <div class="cart-item">
       ${item.photo_url
-        ? `<img class="cart-item-img" src="${escapeAttr(item.photo_url)}" alt="${escapeAttr(item.nombre)}">`
+        ? `<img class="cart-item-img" src="${escapeAttr(item.photo_url)}" alt="${escapeAttr(item.nombre)}" onerror="handleWineImageError(this, '${escapeAttr(item.original_photo_url || '')}')">`
         : '<div class="cart-item-img"></div>'
       }
       <div class="cart-item-info">
@@ -709,6 +930,40 @@ function normalizeText(value) {
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .trim();
+}
+
+function normalizeImageKey(value) {
+  return normalizeText(String(value || '')
+    .split('/')
+    .pop()
+    .replace(/\.[a-z0-9]+$/i, '')
+    .replace(/copy/gi, '')
+    .replace(/copia/gi, '')
+    .replace(/granenemigo/gi, 'gran enemigo')
+    .replace(/nicolascatena/gi, 'nicolas catena')
+    .replace(/corderopiellobo/gi, 'cordero piel lobo')
+    .replace(/dvcateana/gi, 'd v catena')
+    .replace(/dvcatena/gi, 'd v catena')
+    .replace(/alapar/gi, 'a la par')
+    .replace(/lagrima/gi, 'lagrima')
+    .replace(/cabsau/gi, 'cabernet sauvignon')
+    .replace(/cabsauv/gi, 'cabernet sauvignon')
+    .replace(/\bcbsau\b/gi, 'cabernet sauvignon')
+    .replace(/\bcbs\b/gi, 'cabernet sauvignon')
+    .replace(/\bcbf\b/gi, 'cabernet franc')
+    .replace(/\bcs\b/gi, 'cabernet sauvignon')
+    .replace(/\bmb\b/gi, 'malbec')
+    .replace(/[-_.]/g, ' ')
+    .replace(/[^a-z0-9\s]/gi, ' ')
+    .replace(/\s+/g, ' '));
+}
+
+function getMeaningfulTokens(value) {
+  const STOP_WORDS = ['de', 'del', 'la', 'las', 'el', 'los', 'y', 'a', 'al', 'the'];
+
+  return normalizeText(value)
+    .split(' ')
+    .filter(token => token.length > 1 && !STOP_WORDS.includes(token));
 }
 
 function showToast(message) {

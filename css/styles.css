@@ -1491,8 +1491,17 @@ a {
   width: 62px;
   height: 78px;
   border-radius: 14px;
-  object-fit: cover;
+  object-fit: contain;
   background: linear-gradient(180deg, #ddd3c2, #f0e7db);
+}
+
+.cart-item-placeholder {
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  font-family: 'Permanent Marker', cursive;
+  font-size: 0.78rem;
+  color: rgba(111, 43, 52, 0.42);
 }
 
 .cart-item-info {
