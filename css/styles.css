@@ -1814,7 +1814,19 @@ a {
     min-height: 2.4em;
   }
 
+  .wine-price {
+    font-size: 1.5rem;
+  }
+
   .wine-bottom {
     margin-top: auto;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .add-btn {
+    width: 100%;
+    padding: 11px 14px;
   }
 }
