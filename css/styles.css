@@ -123,6 +123,10 @@ a {
   gap: 18px;
 }
 
+.nav-desktop {
+  margin-left: 6px;
+}
+
 .nav-link {
   text-decoration: none;
   text-transform: uppercase;
@@ -132,6 +136,119 @@ a {
 }
 
 .nav-link:hover {
+  color: var(--wine);
+}
+
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown summary {
+  list-style: none;
+}
+
+.nav-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.nav-dropdown-trigger::after {
+  content: '+';
+  font-size: 0.9rem;
+  color: var(--wine);
+}
+
+.nav-dropdown[open] .nav-dropdown-trigger::after {
+  content: '-';
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 16px);
+  left: 0;
+  min-width: 300px;
+  max-height: min(72vh, 580px);
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid rgba(38, 57, 47, 0.1);
+  border-radius: 22px;
+  background: rgba(255, 253, 249, 0.98);
+  box-shadow: 0 24px 38px rgba(32, 34, 29, 0.16);
+}
+
+.nav-submenu {
+  border: 1px solid rgba(38, 57, 47, 0.08);
+  border-radius: 16px;
+  background: rgba(247, 241, 231, 0.82);
+  overflow: hidden;
+}
+
+.nav-submenu + .nav-submenu {
+  margin-top: 8px;
+}
+
+.nav-submenu summary {
+  list-style: none;
+}
+
+.nav-submenu summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-submenu-trigger {
+  position: relative;
+  display: block;
+  padding: 12px 40px 12px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.nav-submenu-trigger::after {
+  content: '+';
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  color: var(--wine);
+}
+
+.nav-submenu[open] .nav-submenu-trigger::after {
+  content: '-';
+}
+
+.nav-submenu-links {
+  display: none;
+  padding: 0 10px 10px;
+}
+
+.nav-submenu[open] .nav-submenu-links {
+  display: grid;
+  gap: 6px;
+}
+
+.nav-submenu-links a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--ink-soft);
+  background: rgba(255, 253, 249, 0.88);
+  transition: background var(--transition), transform var(--transition), color var(--transition);
+}
+
+.nav-submenu-links a:hover {
+  transform: translateX(2px);
+  background: rgba(241, 234, 223, 0.92);
   color: var(--wine);
 }
 
@@ -1654,6 +1771,10 @@ a {
   }
 
   .nav-link {
+    display: none;
+  }
+
+  .nav-desktop {
     display: none;
   }
 

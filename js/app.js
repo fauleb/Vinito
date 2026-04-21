@@ -181,6 +181,8 @@ const cart = hasCart ? new Cart() : null;
 let allWines = [];
 let activeTypeFilter = 'Todos';
 let activeVarietalFilter = 'Todos';
+let activeWineryFilter = 'Todas';
+let activeLineFilter = 'Todas';
 let activeSearchTerm = '';
 let activeSort = 'price-desc';
 
@@ -303,6 +305,8 @@ function buildFilters() {
       onClick: () => {
         activeTypeFilter = type;
         activeVarietalFilter = 'Todos';
+        activeWineryFilter = 'Todas';
+        activeLineFilter = 'Todas';
         buildFilters();
         renderWines();
       },
@@ -330,6 +334,8 @@ function buildFilters() {
         isActive: varietal === activeVarietalFilter,
         onClick: () => {
           activeVarietalFilter = varietal;
+          activeWineryFilter = 'Todas';
+          activeLineFilter = 'Todas';
           buildFilters();
           renderWines();
         },
@@ -338,6 +344,67 @@ function buildFilters() {
 
     varietalGroup.appendChild(varietalButtons);
     filtersContainer.appendChild(varietalGroup);
+  }
+
+  const wineryOptions = getAvailableWineries();
+  if (wineryOptions.length > 0) {
+    const wineryGroup = document.createElement('div');
+    wineryGroup.className = 'filters-group';
+
+    const wineryLabel = document.createElement('span');
+    wineryLabel.className = 'filters-label';
+    wineryLabel.textContent = 'Bodega';
+    wineryGroup.appendChild(wineryLabel);
+
+    const wineryButtons = document.createElement('div');
+    wineryButtons.className = 'filters-row';
+
+    ['Todas', ...wineryOptions].forEach(winery => {
+      wineryButtons.appendChild(createFilterButton({
+        label: winery,
+        isActive: winery === activeWineryFilter,
+        onClick: () => {
+          activeWineryFilter = winery;
+          activeLineFilter = 'Todas';
+          buildFilters();
+          renderWines();
+        },
+      }));
+    });
+
+    wineryGroup.appendChild(wineryButtons);
+    filtersContainer.appendChild(wineryGroup);
+  }
+
+  if (activeWineryFilter !== 'Todas') {
+    const lineOptions = getAvailableLines();
+    if (lineOptions.length > 0) {
+      const lineGroup = document.createElement('div');
+      lineGroup.className = 'filters-group';
+
+      const lineLabel = document.createElement('span');
+      lineLabel.className = 'filters-label';
+      lineLabel.textContent = 'Linea';
+      lineGroup.appendChild(lineLabel);
+
+      const lineButtons = document.createElement('div');
+      lineButtons.className = 'filters-row';
+
+      ['Todas', ...lineOptions].forEach(line => {
+        lineButtons.appendChild(createFilterButton({
+          label: line,
+          isActive: line === activeLineFilter,
+          onClick: () => {
+            activeLineFilter = line;
+            buildFilters();
+            renderWines();
+          },
+        }));
+      });
+
+      lineGroup.appendChild(lineButtons);
+      filtersContainer.appendChild(lineGroup);
+    }
   }
 }
 
@@ -355,6 +422,7 @@ function renderWines() {
   const filtered = allWines.filter(wine => {
     const type = getWineType(wine);
     const varietal = getWineVarietal(wine);
+    const brandInfo = getWineBrandInfo(wine);
     const searchableText = normalizeText(`${wine.nombre} ${wine.categoria} ${wine.descripcion}`);
 
     if (activeTypeFilter !== 'Todos' && type !== activeTypeFilter) {
@@ -362,6 +430,14 @@ function renderWines() {
     }
 
     if (activeVarietalFilter !== 'Todos' && varietal !== activeVarietalFilter) {
+      return false;
+    }
+
+    if (activeWineryFilter !== 'Todas' && brandInfo.winery !== activeWineryFilter) {
+      return false;
+    }
+
+    if (activeLineFilter !== 'Todas' && brandInfo.line !== activeLineFilter) {
       return false;
     }
 
@@ -653,6 +729,8 @@ function setupMenuUI() {
 
       activeTypeFilter = type;
       activeVarietalFilter = varietal;
+      activeWineryFilter = 'Todas';
+      activeLineFilter = 'Todas';
       activeSearchTerm = '';
       menuSearch.value = '';
       if (catalogSearch) catalogSearch.value = '';
@@ -771,6 +849,8 @@ function handleMenuSearch() {
 
   activeTypeFilter = 'Todos';
   activeVarietalFilter = 'Todos';
+  activeWineryFilter = 'Todas';
+  activeLineFilter = 'Todas';
   activeSearchTerm = query;
   if (catalogSearch) {
     catalogSearch.value = activeSearchTerm;
@@ -833,6 +913,8 @@ function applyQueryParams() {
 
   if (params.has('type')) activeTypeFilter = params.get('type') || 'Todos';
   if (params.has('varietal')) activeVarietalFilter = params.get('varietal') || 'Todos';
+  if (params.has('winery')) activeWineryFilter = params.get('winery') || 'Todas';
+  if (params.has('line')) activeLineFilter = params.get('line') || 'Todas';
   if (params.has('search')) {
     activeSearchTerm = params.get('search') || '';
     if (menuSearch) menuSearch.value = activeSearchTerm;
@@ -937,6 +1019,55 @@ function getWineType(wine) {
   return 'Otros';
 }
 
+function getFilteredWinesForMeta() {
+  return allWines.filter(wine => {
+    const type = getWineType(wine);
+    const varietal = getWineVarietal(wine);
+    const brandInfo = getWineBrandInfo(wine);
+    const searchableText = normalizeText(`${wine.nombre} ${wine.categoria} ${wine.descripcion}`);
+
+    if (activeTypeFilter !== 'Todos' && type !== activeTypeFilter) {
+      return false;
+    }
+
+    if (activeVarietalFilter !== 'Todos' && varietal !== activeVarietalFilter) {
+      return false;
+    }
+
+    if (activeSearchTerm && !searchableText.includes(normalizeText(activeSearchTerm))) {
+      return false;
+    }
+
+    if (activeWineryFilter !== 'Todas' && brandInfo.winery !== activeWineryFilter) {
+      return false;
+    }
+
+    if (activeLineFilter !== 'Todas' && brandInfo.line !== activeLineFilter) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+function getAvailableWineries() {
+  return [...new Set(
+    getFilteredWinesForMeta()
+      .map(wine => getWineBrandInfo(wine).winery)
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+}
+
+function getAvailableLines() {
+  return [...new Set(
+    getFilteredWinesForMeta()
+      .map(wine => getWineBrandInfo(wine))
+      .filter(info => info.winery === activeWineryFilter)
+      .map(info => info.line)
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+}
+
 function getWineVarietal(wine) {
   const sparklingStyle = getSparklingStyle(wine);
   if (sparklingStyle) return sparklingStyle;
@@ -995,6 +1126,106 @@ function getSparklingStyle(wine) {
   }
 
   return '';
+}
+
+function getWineBrandInfo(wine) {
+  const name = normalizeText(wine.nombre);
+
+  const rules = [
+    { match: ['gran enemigo'], winery: 'Aleanna', line: 'Gran Enemigo' },
+    { match: ['enemigo'], winery: 'Aleanna', line: 'El Enemigo' },
+    { match: ['d.v. catena', 'd v catena', 'd.v. domingo'], winery: 'Catena Zapata', line: 'D.V. Catena' },
+    { match: ['angelica zapata'], winery: 'Catena Zapata', line: 'Angelica Zapata' },
+    { match: ['saint felicien'], winery: 'Catena Zapata', line: 'Saint Felicien' },
+    { match: ['nicolas catena'], winery: 'Catena Zapata', line: 'Nicolas Catena Zapata' },
+    { match: ['malbec argentino'], winery: 'Catena Zapata', line: 'Catena Zapata' },
+    { match: ['birth of cabernet'], winery: 'Catena Zapata', line: 'Catena Zapata' },
+    { match: ['nicasia'], winery: 'Bressia', line: 'Nicasia' },
+    { match: ['ultima hoja'], winery: 'Bressia', line: 'Ultima Hoja' },
+    { match: ['lagrima canela'], winery: 'Bressia', line: 'Lagrima Canela' },
+    { match: ['monteagrelo'], winery: 'Bressia', line: 'Monteagrelo' },
+    { match: ['bressia profundo'], winery: 'Bressia', line: 'Bressia Profundo' },
+    { match: ['bressia conjuro'], winery: 'Bressia', line: 'Bressia Conjuro' },
+    { match: ['royal brut nature'], winery: 'Bressia', line: 'Royal Brut Nature' },
+    { match: ['escorihuela'], winery: 'Escorihuela Gascon', line: getEscorihuelaLine(wine) },
+    { match: ['familia gascon'], winery: 'Escorihuela Gascon', line: 'Familia Gascon' },
+    { match: ['las perdices'], winery: 'Las Perdices', line: getLasPerdicesLine(wine) },
+    { match: ['ala colorada'], winery: 'Ala Colorada', line: 'Ala Colorada' },
+    { match: ['rutini'], winery: 'Rutini Wines', line: getRutiniLine(wine) },
+    { match: ['trumpeter'], winery: 'Rutini Wines', line: 'Trumpeter' },
+    { match: ['pulenta'], winery: 'Pulenta Estate', line: 'Pulenta Estate' },
+    { match: ['luigi bosca'], winery: 'Luigi Bosca', line: getLuigiLine(wine) },
+    { match: ['altupalka'], winery: 'Altupalka', line: 'Altupalka' },
+    { match: ['amuleto'], winery: 'Amuleto', line: getAmuletoLine(wine) },
+    { match: ['expedicion uco'], winery: 'Amuleto', line: 'Expedicion Uco' },
+    { match: ['a la par'], winery: 'A La Par', line: 'A La Par' },
+    { match: ['gustavo agostini'], winery: 'Gustavo Agostini', line: 'Gustavo Agostini' },
+    { match: ['nebula'], winery: 'Nebula', line: 'Nebula Meteorito' },
+    { match: ['mosquita muerta', 'perro callejero', 'pispi', 'sapo de otro pozo'], winery: 'Mosquita Muerta Wines', line: getMosquitaLine(wine) },
+    { match: ['cordero con piel de lobo'], winery: 'Mosquita Muerta Wines', line: 'Piel de Lobo' },
+    { match: ['salentein'], winery: 'Salentein', line: 'Salentein Espumantes' },
+    { match: ['santa julia'], winery: 'Santa Julia', line: 'Santa Julia' },
+    { match: ['chacabuco'], winery: 'Chacabuco', line: 'Chacabuco' },
+    { match: ['dilema'], winery: 'Dilema', line: 'Dilema' },
+    { match: ['el cazador'], winery: 'El Cazador', line: 'El Cazador' },
+    { match: ['otro loco mas'], winery: 'Otro Loco Mas', line: 'Otro Loco Mas' },
+    { match: ['nampe'], winery: 'Nampe', line: 'Nampe' },
+    { match: ['portillo'], winery: 'Portillo', line: 'Portillo' },
+  ];
+
+  for (const rule of rules) {
+    if (rule.match.some(term => name.includes(term))) {
+      return {
+        winery: rule.winery,
+        line: typeof rule.line === 'function' ? rule.line(wine) : rule.line,
+      };
+    }
+  }
+
+  return {
+    winery: wine.nombre.trim(),
+    line: wine.nombre.trim(),
+  };
+}
+
+function getEscorihuelaLine(wine) {
+  const name = normalizeText(wine.nombre);
+  if (name.includes('gran reserva')) return 'Gran Reserva';
+  if (name.includes('rosaura')) return 'Rosaura';
+  return 'Escorihuela Gascon';
+}
+
+function getLasPerdicesLine(wine) {
+  const name = normalizeText(wine.nombre);
+  if (name.includes('reserva')) return 'Reserva';
+  return 'Las Perdices';
+}
+
+function getRutiniLine(wine) {
+  const name = normalizeText(wine.nombre);
+  if (name.includes('single vineyard')) return 'Single Vineyard';
+  return 'Rutini';
+}
+
+function getLuigiLine(wine) {
+  const name = normalizeText(wine.nombre);
+  if (name.includes('de sangre')) return 'De Sangre';
+  return 'Luigi Bosca';
+}
+
+function getAmuletoLine(wine) {
+  const name = normalizeText(wine.nombre);
+  if (name.includes('raros club')) return 'Raros Club';
+  return 'Amuleto';
+}
+
+function getMosquitaLine(wine) {
+  const name = normalizeText(wine.nombre);
+  if (name.includes('mosquita muerta')) return 'Mosquita Muerta';
+  if (name.includes('perro callejero')) return 'Perro Callejero';
+  if (name.includes('pispi')) return 'Pispi';
+  if (name.includes('sapo de otro pozo')) return 'Sapo de Otro Pozo';
+  return 'Mosquita Muerta Wines';
 }
 
 function normalizeText(value) {
