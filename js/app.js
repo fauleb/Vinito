@@ -185,6 +185,7 @@ let activeWineryFilter = 'Todas';
 let activeLineFilter = 'Todas';
 let activeSearchTerm = '';
 let activeSort = 'price-desc';
+let isFiltersExpanded = false;
 
 // ---- DOM refs ----
 const winesGrid = document.getElementById('winesGrid');
@@ -221,6 +222,7 @@ const shouldOpenCatalogInNewTab = !hasCatalog;
 
 document.addEventListener('DOMContentLoaded', () => {
   applyQueryParams();
+  isFiltersExpanded = hasActiveFilterSelection();
   setupMenuUI();
   setupWineModalUI();
   setupCatalogSearchUI();
@@ -260,6 +262,21 @@ function buildFilters() {
 
   filtersContainer.innerHTML = '';
 
+  const filtersToggle = document.createElement('button');
+  filtersToggle.type = 'button';
+  filtersToggle.className = `filters-toggle${isFiltersExpanded ? ' open' : ''}`;
+  filtersToggle.textContent = getFiltersToggleLabel();
+  filtersToggle.addEventListener('click', () => {
+    isFiltersExpanded = !isFiltersExpanded;
+    buildFilters();
+  });
+  filtersContainer.appendChild(filtersToggle);
+
+  if (!isFiltersExpanded) return;
+
+  const filtersPanel = document.createElement('div');
+  filtersPanel.className = 'filters-panel';
+
   const sortGroup = document.createElement('div');
   sortGroup.className = 'filters-group';
 
@@ -285,7 +302,7 @@ function buildFilters() {
   });
 
   sortGroup.appendChild(sortSelect);
-  filtersContainer.appendChild(sortGroup);
+  filtersPanel.appendChild(sortGroup);
 
   const typeGroup = document.createElement('div');
   typeGroup.className = 'filters-group';
@@ -314,7 +331,7 @@ function buildFilters() {
   });
 
   typeGroup.appendChild(typeButtons);
-  filtersContainer.appendChild(typeGroup);
+  filtersPanel.appendChild(typeGroup);
 
   if (activeTypeFilter !== 'Todos') {
     const varietalGroup = document.createElement('div');
@@ -343,11 +360,11 @@ function buildFilters() {
     });
 
     varietalGroup.appendChild(varietalButtons);
-    filtersContainer.appendChild(varietalGroup);
+    filtersPanel.appendChild(varietalGroup);
   }
 
   const wineryOptions = getAvailableWineries();
-  if (wineryOptions.length > 0) {
+  if (activeTypeFilter !== 'Todos' && wineryOptions.length > 0) {
     const wineryGroup = document.createElement('div');
     wineryGroup.className = 'filters-group';
 
@@ -373,7 +390,7 @@ function buildFilters() {
     });
 
     wineryGroup.appendChild(wineryButtons);
-    filtersContainer.appendChild(wineryGroup);
+    filtersPanel.appendChild(wineryGroup);
   }
 
   if (activeWineryFilter !== 'Todas') {
@@ -403,9 +420,11 @@ function buildFilters() {
       });
 
       lineGroup.appendChild(lineButtons);
-      filtersContainer.appendChild(lineGroup);
+      filtersPanel.appendChild(lineGroup);
     }
   }
+
+  filtersContainer.appendChild(filtersPanel);
 }
 
 function createFilterButton({ label, isActive, onClick }) {
@@ -1048,6 +1067,25 @@ function getFilteredWinesForMeta() {
 
     return true;
   });
+}
+
+function hasActiveFilterSelection() {
+  return activeTypeFilter !== 'Todos'
+    || activeVarietalFilter !== 'Todos'
+    || activeWineryFilter !== 'Todas'
+    || activeLineFilter !== 'Todas'
+    || Boolean(activeSearchTerm);
+}
+
+function getFiltersToggleLabel() {
+  const activeCount = [
+    activeTypeFilter !== 'Todos',
+    activeVarietalFilter !== 'Todos',
+    activeWineryFilter !== 'Todas',
+    activeLineFilter !== 'Todas',
+  ].filter(Boolean).length;
+
+  return activeCount > 0 ? `Filtrar (${activeCount})` : 'Filtrar';
 }
 
 function getAvailableWineries() {
