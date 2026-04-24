@@ -14,14 +14,15 @@
 
   <header class="header">
     <div class="header-inner">
-      <button class="menu-btn" id="menuBtn" aria-label="Abrir menu" aria-controls="menuSidebar" aria-expanded="false">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-      <details class="nav-dropdown nav-desktop">
-        <summary class="nav-link nav-dropdown-trigger">Bodegas</summary>
-        <div class="nav-dropdown-menu">
+      <div class="header-side header-side-left">
+        <button class="menu-btn" id="menuBtn" aria-label="Abrir menu" aria-controls="menuSidebar" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <details class="nav-dropdown nav-desktop">
+          <summary class="nav-link nav-dropdown-trigger">Bodegas</summary>
+          <div class="nav-dropdown-menu">
           <details class="nav-submenu">
             <summary class="nav-submenu-trigger">Aleanna</summary>
             <div class="nav-submenu-links">
@@ -96,13 +97,13 @@
               <a href="catalogo.html?winery=Ala%20Colorada">Ala Colorada</a>
             </div>
           </details>
-        </div>
-      </details>
+          </div>
+        </details>
+      </div>
       <a href="index.html" class="logo">
         <span class="logo-v">V</span><span class="logo-1">1</span><span class="logo-nito">NITO</span>
       </a>
-      <nav class="nav">
-        <a href="index.html" class="nav-link">Inicio</a>
+      <div class="header-side header-side-right">
         <button class="cart-btn" id="cartBtn" aria-label="Abrir carrito">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="9" cy="21" r="1"></circle>
@@ -111,7 +112,7 @@
           </svg>
           <span class="cart-count" id="cartCount">0</span>
         </button>
-      </nav>
+      </div>
     </div>
   </header>
 
