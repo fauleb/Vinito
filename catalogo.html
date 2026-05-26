@@ -236,6 +236,16 @@
       </div>
       <div class="checkout-fields">
         <input type="text" id="clientName" placeholder="Tu nombre" required>
+        <div class="delivery-options" role="radiogroup" aria-label="Modalidad de entrega">
+          <label class="delivery-option">
+            <input type="radio" name="deliveryMethod" value="Retiro personalmente" checked>
+            <span>Retiro personalmente</span>
+          </label>
+          <label class="delivery-option">
+            <input type="radio" name="deliveryMethod" value="Entrega a domicilio">
+            <span>Entrega a domicilio</span>
+          </label>
+        </div>
         <input type="text" id="clientAddress" placeholder="Direcci&oacute;n de entrega" required>
       </div>
       <button class="checkout-btn" id="checkoutBtn">

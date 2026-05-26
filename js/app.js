@@ -722,6 +722,12 @@ function setupCartUI() {
   cartClose.addEventListener('click', closeCart);
   cartOverlay.addEventListener('click', closeCart);
   checkoutBtn.addEventListener('click', checkout);
+
+  document.querySelectorAll('input[name="deliveryMethod"]').forEach(input => {
+    input.addEventListener('change', updateAddressFieldState);
+  });
+
+  updateAddressFieldState();
 }
 
 function setupMenuUI() {
@@ -990,12 +996,30 @@ function updateCartBadge() {
   cartCount.classList.toggle('show', count > 0);
 }
 
+function updateAddressFieldState() {
+  const addressField = document.getElementById('clientAddress');
+  const deliveryField = document.querySelector('input[name="deliveryMethod"]:checked');
+
+  if (!addressField || !deliveryField) return;
+
+  const needsAddress = deliveryField.value === 'Entrega a domicilio';
+  addressField.disabled = !needsAddress;
+  addressField.required = needsAddress;
+  addressField.placeholder = needsAddress ? 'Direccion de entrega' : 'No hace falta direccion para retirar';
+
+  if (!needsAddress) {
+    addressField.value = '';
+  }
+}
+
 function checkout() {
   if (!cart) return;
 
   const nameField = document.getElementById('clientName');
   const addressField = document.getElementById('clientAddress');
+  const deliveryField = document.querySelector('input[name="deliveryMethod"]:checked');
   const name = nameField ? nameField.value.trim() : '';
+  const deliveryMethod = deliveryField ? deliveryField.value : '';
   const address = addressField ? addressField.value.trim() : '';
 
   if (!name) {
@@ -1004,13 +1028,18 @@ function checkout() {
     return;
   }
 
-  if (!address) {
+  if (!deliveryMethod) {
+    showToast('Selecciona una modalidad de entrega');
+    return;
+  }
+
+  if (deliveryMethod === 'Entrega a domicilio' && !address) {
     showToast('Ingres&aacute; la direcci&oacute;n de entrega');
     if (addressField) addressField.focus();
     return;
   }
 
-  const message = cart.buildWhatsAppMessage(name, address);
+  const message = cart.buildWhatsAppMessage(name, deliveryMethod, address);
   const encoded = encodeURIComponent(message);
   const url = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encoded}`;
 

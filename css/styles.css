@@ -1745,6 +1745,44 @@ a {
   border-color: rgba(111, 43, 52, 0.42);
 }
 
+.checkout-fields input:disabled {
+  color: var(--ink-soft);
+  background: rgba(38, 57, 47, 0.05);
+  cursor: not-allowed;
+}
+
+.delivery-options {
+  display: grid;
+  gap: 8px;
+}
+
+.delivery-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  border: 1px solid rgba(38, 57, 47, 0.14);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: var(--white);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.delivery-option input[type="radio"] {
+  width: auto;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  accent-color: var(--wine);
+  flex: 0 0 auto;
+}
+
+.delivery-option span {
+  padding-top: 2px;
+}
+
 .checkout-btn {
   width: 100%;
   display: inline-flex;

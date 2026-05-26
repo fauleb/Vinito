@@ -51,10 +51,16 @@ class Cart {
     this.save();
   }
 
-  buildWhatsAppMessage(name, address) {
+  buildWhatsAppMessage(name, deliveryMethod, address) {
     let msg = ` 🍷*Detalles del pedido*🍷 \n\n`;
     msg += `Nombre: ${name}\n`;
-    msg += `Direccion: ${address}\n\n`;
+    msg += `Modalidad: ${deliveryMethod}\n`;
+
+    if (address) {
+      msg += `Direccion: ${address}\n`;
+    }
+
+    msg += `\n`;
     msg += `Detalle del pedido:\n`;
 
     this.items.forEach(item => {
