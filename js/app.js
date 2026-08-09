@@ -206,6 +206,7 @@ const hasCart = typeof Cart === 'function';
 const cart = hasCart ? new Cart() : null;
 
 let allWines = [];
+let activeGroupFilter = 'Todos';
 let activeTypeFilter = 'Todos';
 let activeVarietalFilter = 'Todos';
 let activeWineryFilter = 'Todas';
@@ -237,6 +238,7 @@ const menuSearchBtn = document.getElementById('menuSearchBtn');
 const catalogSearchForm = document.getElementById('catalogSearchForm');
 const catalogSearchToggle = document.getElementById('catalogSearchToggle');
 const catalogSearch = document.getElementById('catalogSearch');
+const catalogSectionTitle = document.getElementById('catalogSectionTitle');
 const menuFilterButtons = document.querySelectorAll('[data-type]');
 const wineModal = document.getElementById('wineModal');
 const wineModalOverlay = document.getElementById('wineModalOverlay');
@@ -249,7 +251,6 @@ const shouldOpenCatalogInNewTab = !hasCatalog;
 
 document.addEventListener('DOMContentLoaded', () => {
   applyQueryParams();
-  isFiltersExpanded = hasActiveFilterSelection();
   setupMenuUI();
   setupWineModalUI();
   setupCatalogSearchUI();
@@ -352,6 +353,7 @@ function buildFilters() {
     `;
 
     card.addEventListener('click', () => {
+      activeGroupFilter = 'Todos';
       activeTypeFilter = type;
       activeVarietalFilter = 'Todos';
       activeWineryFilter = 'Todas';
@@ -471,11 +473,17 @@ function createFilterButton({ label, isActive, onClick }) {
 function renderWines() {
   if (!hasCatalog) return;
 
+  updateCatalogSectionTitle();
+
   const filtered = allWines.filter(wine => {
     const type = getWineType(wine);
     const varietal = getWineVarietal(wine);
     const brandInfo = getWineBrandInfo(wine);
     const searchableText = normalizeText(`${wine.nombre} ${wine.categoria} ${wine.descripcion}`);
+
+    if (activeGroupFilter === 'Vinos' && !['Tintos', 'Blancos'].includes(type)) {
+      return false;
+    }
 
     if (activeTypeFilter !== 'Todos' && type !== activeTypeFilter) {
       return false;
@@ -544,6 +552,22 @@ function renderWines() {
   if (sorted.length === 0) {
     winesGrid.innerHTML = '<p class="empty-results">No hay vinos para ese filtro todavia.</p>';
   }
+}
+
+function updateCatalogSectionTitle() {
+  if (!catalogSectionTitle) return;
+
+  if (activeTypeFilter === 'Whiskys') {
+    catalogSectionTitle.textContent = 'Nuestros whiskys';
+    return;
+  }
+
+  if (activeTypeFilter === 'Espumantes') {
+    catalogSectionTitle.textContent = 'Nuestros espumantes';
+    return;
+  }
+
+  catalogSectionTitle.textContent = 'Nuestros vinos';
 }
 
 function renderWineModal(wine) {
@@ -806,6 +830,7 @@ function setupMenuUI() {
         return;
       }
 
+      activeGroupFilter = 'Todos';
       activeTypeFilter = type;
       activeVarietalFilter = varietal;
       activeWineryFilter = 'Todas';
@@ -926,6 +951,7 @@ function handleMenuSearch() {
     return;
   }
 
+  activeGroupFilter = 'Todos';
   activeTypeFilter = 'Todos';
   activeVarietalFilter = 'Todos';
   activeWineryFilter = 'Todas';
@@ -990,6 +1016,7 @@ function scrollToCatalog() {
 function applyQueryParams() {
   const params = new URLSearchParams(window.location.search);
 
+  if (params.has('group')) activeGroupFilter = params.get('group') || 'Todos';
   if (params.has('type')) activeTypeFilter = params.get('type') || 'Todos';
   if (params.has('varietal')) activeVarietalFilter = params.get('varietal') || 'Todos';
   if (params.has('winery')) activeWineryFilter = params.get('winery') || 'Todas';
@@ -1110,7 +1137,7 @@ function getWineType(wine) {
   const sparklingStyle = getSparklingStyle(wine);
 
   if (sparklingStyle) return 'Espumantes';
-  if (category.includes('whisky') || category.includes('whiskey')) return 'Whiskys';
+  if (isWhiskey(wine)) return 'Whiskys';
   if (category.includes('blanco')) return 'Blancos';
   if (category.includes('tinto')) return 'Tintos';
 
@@ -1128,6 +1155,10 @@ function getFilteredWinesForMeta() {
     const varietal = getWineVarietal(wine);
     const brandInfo = getWineBrandInfo(wine);
     const searchableText = normalizeText(`${wine.nombre} ${wine.categoria} ${wine.descripcion}`);
+
+    if (activeGroupFilter === 'Vinos' && !['Tintos', 'Blancos'].includes(type)) {
+      return false;
+    }
 
     if (activeTypeFilter !== 'Todos' && type !== activeTypeFilter) {
       return false;
@@ -1154,7 +1185,8 @@ function getFilteredWinesForMeta() {
 }
 
 function hasActiveFilterSelection() {
-  return activeTypeFilter !== 'Todos'
+  return activeGroupFilter !== 'Todos'
+    || activeTypeFilter !== 'Todos'
     || activeVarietalFilter !== 'Todos'
     || activeWineryFilter !== 'Todas'
     || activeLineFilter !== 'Todas'
@@ -1163,6 +1195,7 @@ function hasActiveFilterSelection() {
 
 function getFiltersToggleLabel() {
   const activeCount = [
+    activeGroupFilter !== 'Todos',
     activeTypeFilter !== 'Todos',
     activeVarietalFilter !== 'Todos',
     activeWineryFilter !== 'Todas',
@@ -1193,6 +1226,7 @@ function getAvailableLines() {
 function getWineVarietal(wine) {
   const sparklingStyle = getSparklingStyle(wine);
   if (sparklingStyle) return sparklingStyle;
+  if (isWhiskey(wine)) return 'Whisky';
 
   const varietalMatch = findKnownVarietal(wine);
   return varietalMatch || wine.categoria || 'Otros';
@@ -1220,6 +1254,21 @@ function findKnownVarietal(wine) {
   }
 
   return '';
+}
+
+function isWhiskey(wine) {
+  const searchableText = normalizeText(`${wine.categoria} ${wine.nombre} ${wine.descripcion}`);
+
+  return searchableText.includes('whisky')
+    || searchableText.includes('whiskey')
+    || searchableText.includes('jack daniel')
+    || searchableText.includes('jack daniels')
+    || searchableText.includes('j d apple')
+    || searchableText.includes('j d blackberry')
+    || searchableText.includes('j d honey')
+    || searchableText.includes('j d honney')
+    || searchableText.includes('j d tennessee')
+    || searchableText.includes('j d teneese');
 }
 
 function getSparklingStyle(wine) {
@@ -1252,6 +1301,13 @@ function getSparklingStyle(wine) {
 
 function getWineBrandInfo(wine) {
   const name = normalizeText(wine.nombre);
+
+  if (isWhiskey(wine)) {
+    return {
+      winery: 'Jack Daniel\'s',
+      line: getWhiskeyLine(wine),
+    };
+  }
 
   const rules = [
     { match: ['gran enemigo'], winery: 'Aleanna', line: 'Gran Enemigo' },
@@ -1308,6 +1364,17 @@ function getWineBrandInfo(wine) {
     winery: wine.nombre.trim(),
     line: wine.nombre.trim(),
   };
+}
+
+function getWhiskeyLine(wine) {
+  const name = normalizeText(wine.nombre);
+
+  if (name.includes('apple')) return 'Apple';
+  if (name.includes('blackberry')) return 'Blackberry';
+  if (name.includes('honey') || name.includes('honney')) return 'Honey';
+  if (name.includes('tennessee') || name.includes('teneese') || name.includes('old no')) return 'Tennessee';
+
+  return 'Jack Daniel\'s';
 }
 
 function getEscorihuelaLine(wine) {

@@ -119,12 +119,27 @@
   <main class="catalog-shell">
     <section class="catalog-hero">
       <p class="catalog-kicker">Catalogo</p>
-      <h1 class="catalog-title">Elegi tu proximo vinito</h1>
+      <h1 class="catalog-title">Eleg&iacute; tu pr&oacute;ximo brindis</h1>
+      <p class="catalog-sub">Entr&aacute; por bloque o us&aacute; los filtros para afinar la b&uacute;squeda.</p>
+      <nav class="catalog-block-nav" aria-label="Bloques del cat&aacute;logo">
+        <a class="catalog-block-link catalog-block-wines" href="catalogo.html?group=Vinos">
+          <span>Vinos</span>
+          <small>Tintos y blancos</small>
+        </a>
+        <a class="catalog-block-link catalog-block-sparkling" href="catalogo.html?type=Espumantes">
+          <span>Espumantes</span>
+          <small>Burbujas para brindar</small>
+        </a>
+        <a class="catalog-block-link catalog-block-whisky" href="catalogo.html?type=Whiskys">
+          <span>Whiskys</span>
+          <small>Jack Daniel's</small>
+        </a>
+      </nav>
     </section>
 
     <section id="catalogo" class="catalogo">
       <div class="section-header">
-        <h2 class="section-title">Nuestros vinos</h2>
+        <h2 class="section-title" id="catalogSectionTitle">Nuestros vinos</h2>
         <div class="section-tools">
           <form class="catalog-search compact" id="catalogSearchForm" role="search">
             <label class="sr-only" for="catalogSearch">Buscar vino por nombre</label>
