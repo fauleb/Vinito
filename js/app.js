@@ -138,6 +138,10 @@ const LOCAL_IMAGE_PATHS = [
   'img/salentein brut rose.png',
   'img/salentein brut nature.png',
   'img/salentein blanc de blancs.png',
+  'img/J.D APPLE (2).png',
+  'img/J.D BLACKBERRY.png',
+  'img/J.D HONNEY.png',
+  'img/J.D TENEESE.png',
   'img/SAINT_PINOT.png',
   'img/SAINT_MALBEC.png',
   'img/SAINT_CHARDONNAY.png',
@@ -166,6 +170,11 @@ const MANUAL_IMAGE_MAP = {
   [normalizeText('Salentein brut nature')]: 'img/salentein brut nature.png',
   [normalizeText('Salentein Blanc de Blanc')]: 'img/salentein blanc de blancs.png',
   [normalizeText('Salentein extra brut')]: 'img/Salentein Extra Brut.png',
+  [normalizeText('J.D Apple')]: 'img/J.D APPLE (2).png',
+  [normalizeText('J.D Blackberry')]: 'img/J.D BLACKBERRY.png',
+  [normalizeText('J.D Honey')]: 'img/J.D HONNEY.png',
+  [normalizeText('J.D Tennessee')]: 'img/J.D TENEESE.png',
+  [normalizeText('J.D Teneese')]: 'img/J.D TENEESE.png',
 };
 
 const VARIETAL_TO_TYPE = Object.entries(FILTER_TREE).reduce((acc, [type, varietals]) => {
