@@ -19,6 +19,9 @@ const FILTER_TREE = {
   Espumantes: [
     'Espumante',
   ],
+  Whiskys: [
+    'Whisky',
+  ],
 };
 
 const SORT_OPTIONS = [
@@ -175,6 +178,21 @@ const MANUAL_IMAGE_MAP = {
   [normalizeText('J.D Honey')]: 'img/J.D HONNEY.png',
   [normalizeText('J.D Tennessee')]: 'img/J.D TENEESE.png',
   [normalizeText('J.D Teneese')]: 'img/J.D TENEESE.png',
+  [normalizeText('Jack Daniels Apple')]: 'img/J.D APPLE (2).png',
+  [normalizeText('Jack Daniel Apple')]: 'img/J.D APPLE (2).png',
+  [normalizeText('Jack Daniel\'s Apple')]: 'img/J.D APPLE (2).png',
+  [normalizeText('Jack Daniels Blackberry')]: 'img/J.D BLACKBERRY.png',
+  [normalizeText('Jack Daniel Blackberry')]: 'img/J.D BLACKBERRY.png',
+  [normalizeText('Jack Daniel\'s Blackberry')]: 'img/J.D BLACKBERRY.png',
+  [normalizeText('Jack Daniels Honey')]: 'img/J.D HONNEY.png',
+  [normalizeText('Jack Daniel Honey')]: 'img/J.D HONNEY.png',
+  [normalizeText('Jack Daniel\'s Honey')]: 'img/J.D HONNEY.png',
+  [normalizeText('Jack Daniels Tennessee')]: 'img/J.D TENEESE.png',
+  [normalizeText('Jack Daniel Tennessee')]: 'img/J.D TENEESE.png',
+  [normalizeText('Jack Daniel\'s Tennessee')]: 'img/J.D TENEESE.png',
+  [normalizeText('Jack Daniels Old No 7')]: 'img/J.D TENEESE.png',
+  [normalizeText('Jack Daniel Old No 7')]: 'img/J.D TENEESE.png',
+  [normalizeText('Jack Daniel\'s Old No 7')]: 'img/J.D TENEESE.png',
 };
 
 const VARIETAL_TO_TYPE = Object.entries(FILTER_TREE).reduce((acc, [type, varietals]) => {
@@ -322,21 +340,27 @@ function buildFilters() {
   typeGroup.appendChild(typeLabel);
 
   const typeButtons = document.createElement('div');
-  typeButtons.className = 'filters-row';
+  typeButtons.className = 'category-cards-grid';
 
   ['Todos', ...Object.keys(FILTER_TREE)].forEach(type => {
-    typeButtons.appendChild(createFilterButton({
-      label: type,
-      isActive: type === activeTypeFilter,
-      onClick: () => {
-        activeTypeFilter = type;
-        activeVarietalFilter = 'Todos';
-        activeWineryFilter = 'Todas';
-        activeLineFilter = 'Todas';
-        buildFilters();
-        renderWines();
-      },
-    }));
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = `category-card${type === activeTypeFilter ? ' active' : ''}`;
+    card.innerHTML = `
+      <span class="category-card-title">${type === 'Todos' ? 'Todos' : type}</span>
+      <span class="category-card-subtitle">${type === 'Todos' ? 'Ver catálogo completo' : `Ver ${type.toLowerCase()}`}</span>
+    `;
+
+    card.addEventListener('click', () => {
+      activeTypeFilter = type;
+      activeVarietalFilter = 'Todos';
+      activeWineryFilter = 'Todas';
+      activeLineFilter = 'Todas';
+      buildFilters();
+      renderWines();
+    });
+
+    typeButtons.appendChild(card);
   });
 
   typeGroup.appendChild(typeButtons);
@@ -608,6 +632,9 @@ function resolveWineImage(wine) {
   const manualImage = MANUAL_IMAGE_MAP[normalizeText(wine.nombre)];
   if (manualImage) return manualImage;
 
+  const whiskeyImage = resolveWhiskeyImage(wine.nombre);
+  if (whiskeyImage) return whiskeyImage;
+
   const sourceKeys = [
     normalizeImageKey(wine.photo_url),
     normalizeImageKey(wine.nombre),
@@ -620,6 +647,24 @@ function resolveWineImage(wine) {
 
   const bestCandidate = findBestLocalImageMatch(wine);
   return bestCandidate ? bestCandidate.path : (wine.photo_url || '');
+}
+
+function resolveWhiskeyImage(name) {
+  const normalizedName = normalizeText(name);
+  const isJackDaniels = normalizedName.includes('jack daniel')
+    || normalizedName.includes('jack daniels')
+    || normalizedName.includes('j d');
+
+  if (!isJackDaniels) return '';
+
+  if (normalizedName.includes('apple')) return 'img/J.D APPLE (2).png';
+  if (normalizedName.includes('blackberry')) return 'img/J.D BLACKBERRY.png';
+  if (normalizedName.includes('honey') || normalizedName.includes('honney')) return 'img/J.D HONNEY.png';
+  if (normalizedName.includes('tennessee') || normalizedName.includes('teneese') || normalizedName.includes('old no')) {
+    return 'img/J.D TENEESE.png';
+  }
+
+  return 'img/J.D TENEESE.png';
 }
 
 function findBestLocalImageMatch(wine) {
@@ -1065,6 +1110,7 @@ function getWineType(wine) {
   const sparklingStyle = getSparklingStyle(wine);
 
   if (sparklingStyle) return 'Espumantes';
+  if (category.includes('whisky') || category.includes('whiskey')) return 'Whiskys';
   if (category.includes('blanco')) return 'Blancos';
   if (category.includes('tinto')) return 'Tintos';
 
@@ -1322,6 +1368,7 @@ function normalizeImageKey(value) {
     .replace(/granenemigo/gi, 'gran enemigo')
     .replace(/nicolascatena/gi, 'nicolas catena')
     .replace(/corderopiellobo/gi, 'cordero piel lobo')
+    .replace(/jack\s*daniel'?s?/gi, 'j d')
     .replace(/dvcateana/gi, 'd v catena')
     .replace(/dvcatena/gi, 'd v catena')
     .replace(/alapar/gi, 'a la par')

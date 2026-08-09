@@ -940,6 +940,52 @@ a {
   border-color: var(--ink);
 }
 
+.category-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+.category-card {
+  display: grid;
+  align-items: center;
+  justify-items: start;
+  min-height: 120px;
+  padding: 18px 20px;
+  border: 1px solid rgba(38, 57, 47, 0.14);
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(255, 253, 249, 0.96), rgba(245, 232, 236, 0.94));
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition), background var(--transition);
+}
+
+.category-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(111, 43, 52, 0.24);
+  box-shadow: 0 12px 24px rgba(71, 33, 38, 0.08);
+}
+
+.category-card.active {
+  background: linear-gradient(135deg, rgba(87, 17, 27, 0.96), rgba(111, 43, 52, 0.9));
+  color: var(--white);
+  border-color: rgba(87, 17, 27, 0.9);
+}
+
+.category-card-title {
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.category-card-subtitle {
+  font-size: 0.74rem;
+  opacity: 0.8;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .loading,
 .error-msg {
   text-align: center;
