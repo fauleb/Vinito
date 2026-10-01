@@ -182,13 +182,25 @@ const MANUAL_IMAGE_MAP = {
   [normalizeText('Salentein Blanc de Blanc')]: 'img/salentein blanc de blancs.png',
   [normalizeText('Salentein extra brut')]: 'img/Salentein Extra Brut.png',
   [normalizeText('Baron B Brut Nature')]: 'img/BaronB-BrutNature.png',
+  [normalizeText('Baron B Brut Rose')]: 'img/BaronB-Rose.png',
+  [normalizeText('Baron B Brut Rosé')]: 'img/BaronB-Rose.png',
   [normalizeText('Baron B Extra Brut')]: 'img/BaronB-ExtraBrut.png',
   [normalizeText('Baron B Rosé')]: 'img/BaronB-Rose.png',
   [normalizeText('Baron B Rose')]: 'img/BaronB-Rose.png',
+  [normalizeText('Rosell Boher Brut Nature')]: 'img/CasaBoherBrutNature.png',
+  [normalizeText('Rosell Boher Brut Rose')]: 'img/CasaBoherRose.webp',
+  [normalizeText('Rosell Boher Brut Rosé')]: 'img/CasaBoherRose.webp',
+  [normalizeText('Rosell Boher Rose')]: 'img/CasaBoherRose.webp',
   [normalizeText('Casa Boher Brut Nature')]: 'img/CasaBoherBrutNature.png',
   [normalizeText('Casa Boher Extra Brut')]: 'img/CasaBoherExtraBrut.png',
+  [normalizeText('Casa Boher Brut Rose')]: 'img/CasaBoherRose.webp',
+  [normalizeText('Casa Boher Brut Rosé')]: 'img/CasaBoherRose.webp',
   [normalizeText('Casa Boher Rosé')]: 'img/CasaBoherRose.webp',
   [normalizeText('Casa Boher Rose')]: 'img/CasaBoherRose.webp',
+  [normalizeText('Lugi Bosca Brut Nature')]: 'img/LuigiBoscaBrut.png',
+  [normalizeText('Lugi Bosca Brut')]: 'img/LuigiBoscaBrut.png',
+  [normalizeText('Lugi Bosca Extra Brut')]: 'img/LuigiBoscaExtraBrut.png',
+  [normalizeText('Luigi Bosca Brut Nature')]: 'img/LuigiBoscaBrut.png',
   [normalizeText('Luigi Bosca Brut')]: 'img/LuigiBoscaBrut.png',
   [normalizeText('Luigi Bosca Extra Brut')]: 'img/LuigiBoscaExtraBrut.png',
   [normalizeText('J.D Apple')]: 'img/J.D APPLE (2).png',
@@ -529,7 +541,7 @@ function renderWines() {
   const sorted = [...filtered].sort((a, b) => compareWines(a, b));
 
   winesGrid.innerHTML = sorted.map(wine => `
-    <article class="wine-card${wine.tiene_stock ? '' : ' no-stock'}">
+    <article class="wine-card${wine.tiene_stock ? '' : ' no-stock'}${isLargeImageWine(wine) ? ' wine-card--large-art' : ''}">
       <div class="wine-img-wrap">
         ${wine.photo_url
           ? `<img class="wine-img" src="${escapeAttr(wine.photo_url)}" alt="${escapeAttr(wine.nombre)}" loading="lazy" onerror="handleWineImageError(this, '${escapeAttr(wine.original_photo_url || '')}')">`
@@ -629,6 +641,11 @@ function compareWines(a, b) {
   if (activeSort === 'price-desc') return b.precio - a.precio;
   if (activeSort === 'price-asc') return a.precio - b.precio;
   return a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' });
+}
+
+function isLargeImageWine(wine) {
+  const name = normalizeText(wine.nombre || '');
+  return name.includes('casa boher') && (name.includes('extra brut') || name.includes('brut rose') || name.includes('brut rosee'));
 }
 
 function prepareWineImage(wine) {
@@ -1350,7 +1367,7 @@ function getWineBrandInfo(wine) {
     { match: ['rutini'], winery: 'Rutini Wines', line: getRutiniLine(wine) },
     { match: ['trumpeter'], winery: 'Rutini Wines', line: 'Trumpeter' },
     { match: ['pulenta'], winery: 'Pulenta Estate', line: 'Pulenta Estate' },
-    { match: ['luigi bosca'], winery: 'Luigi Bosca', line: getLuigiLine(wine) },
+    { match: ['luigi bosca', 'lugi bosca'], winery: 'Luigi Bosca', line: getLuigiLine(wine) },
     { match: ['altupalka'], winery: 'Altupalka', line: 'Altupalka' },
     { match: ['amuleto'], winery: 'Amuleto', line: getAmuletoLine(wine) },
     { match: ['expedicion uco'], winery: 'Amuleto', line: 'Expedicion Uco' },
@@ -1361,7 +1378,7 @@ function getWineBrandInfo(wine) {
     { match: ['cordero con piel de lobo'], winery: 'Mosquita Muerta Wines', line: 'Piel de Lobo' },
     { match: ['salentein'], winery: 'Salentein', line: 'Salentein Espumantes' },
     { match: ['baron b'], winery: 'Baron B', line: getBaronBLine(wine) },
-    { match: ['casa boher'], winery: 'Casa Boher', line: getCasaBoherLine(wine) },
+    { match: ['rosell boher', 'casa boher'], winery: 'Rosell Boher', line: getCasaBoherLine(wine) },
     { match: ['santa julia'], winery: 'Santa Julia', line: 'Santa Julia' },
     { match: ['chacabuco'], winery: 'Chacabuco', line: 'Chacabuco' },
     { match: ['dilema'], winery: 'Dilema', line: 'Dilema' },
@@ -1419,6 +1436,8 @@ function getRutiniLine(wine) {
 function getLuigiLine(wine) {
   const name = normalizeText(wine.nombre);
   if (name.includes('de sangre')) return 'De Sangre';
+  if (name.includes('brut nature')) return 'Brut Nature';
+  if (name.includes('brut rose') || name.includes('brut rose')) return 'Brut Rosé';
   if (name.includes('brut')) return 'Brut';
   if (name.includes('extra brut')) return 'Extra Brut';
   return 'Luigi Bosca';
@@ -1427,6 +1446,7 @@ function getLuigiLine(wine) {
 function getBaronBLine(wine) {
   const name = normalizeText(wine.nombre);
   if (name.includes('brut nature')) return 'Brut Nature';
+  if (name.includes('brut rose') || name.includes('brut rose')) return 'Brut Rosé';
   if (name.includes('rose') || name.includes('rosé')) return 'Rosé';
   if (name.includes('extra brut')) return 'Extra Brut';
   return 'Baron B';
@@ -1435,9 +1455,10 @@ function getBaronBLine(wine) {
 function getCasaBoherLine(wine) {
   const name = normalizeText(wine.nombre);
   if (name.includes('brut nature')) return 'Brut Nature';
+  if (name.includes('brut rose') || name.includes('brut rose')) return 'Brut Rosé';
   if (name.includes('rose') || name.includes('rosé')) return 'Rosé';
   if (name.includes('extra brut')) return 'Extra Brut';
-  return 'Casa Boher';
+  return 'Rosell Boher';
 }
 
 function getAmuletoLine(wine) {

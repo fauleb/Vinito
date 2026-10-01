@@ -1310,6 +1310,11 @@ a {
   transform: translate(-50%, -50%) scale(1.04);
 }
 
+.wine-card--large-art .wine-img {
+  max-width: 110%;
+  height: 108%;
+}
+
 .wine-img-placeholder {
   position: absolute;
   inset: 0;
